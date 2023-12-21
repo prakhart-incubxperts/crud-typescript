@@ -4,13 +4,15 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { Registration } from './Pages/registration';
+import { PatientDetails } from './Pages/patientDetails';
+import { Routing } from './Routes/routes';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <Registration />
+    <Routing />
   </React.StrictMode>
 );
 

@@ -8,6 +8,7 @@ import bootstarp from 'react-bootstrap';
 import { save } from "../Utils/functions";
 import { Patients } from "../entities/Patients";
 import { nanoid } from 'nanoid';
+import * as EmailValidator from 'email-validator';
 //import { patient } from "../entities/patient";
 
 
@@ -32,14 +33,24 @@ export function Registration(){
     function registerPatient():void{
         debugger;
         
-        let id=nanoid();
+        let id:string=nanoid();
+        let isValid:boolean=EmailValidator.validate(email);
         //setPid(id);
-        if(fullname!= null && gender!=null && email!=null){
-            const details:Patients={pid:id,fullname:fullname,gender:gender,dob:dob, refdoc:refdoc, address:address, country:country, state:state, mobile:mobile, email:email, note:note, image:image};
-            const res=save(details);
-            alert('Data saved successfully...')
+        if(fullname!= null && gender!=null && dob!=null && email!=null){
+
+            if(isValid){
+                const details:Patients={pid:id,fullname:fullname,gender:gender,dob:dob, refdoc:refdoc, address:address, country:country, state:state, mobile:mobile, email:email, note:note, image:image};
+                const res=save(details);
+                alert('Data saved successfully...');
+            }
+            else{
+                alert('Enter valid Email');
+            }   
         }
-        //alert('something went wrong...')
+        else{
+            alert('Fields can not be empty...');
+        }
+        
         
         // let details=new patient(pid,fullname,gender,dob, refdoc, address, country, state, mobile, email, note, image);
         console.log('in rgstrpt');
@@ -47,60 +58,9 @@ export function Registration(){
               
     }
 
-
-
-
-
     return (
         <div>
-            <link
-                href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"
-                rel="stylesheet"
-                id="bootstrap-css"
-            />
-            {/* Fonts */}
-            <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-            <link
-                href="https://fonts.googleapis.com/css?family=Raleway:300,400,600"
-                rel="stylesheet"
-                type="text/css"
-            />
-            <link rel="icon" href="Favicon.png" />
-            {/* Bootstrap CSS */}
-            <link
-                rel="stylesheet"
-                href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
-            />
-            <title></title>
-            <nav className="navbar navbar-expand-lg navbar-light navbar-laravel">
-                <div className="container">
-                    <a className="navbar-brand" href="#">
-                        Patient Screen
-                    </a>
-
-                    <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                        <ul className="navbar-nav ml-auto">
-                            <li className="nav-item">
-                                {/* <Link to='/display'>Details
-                                 </Link> */}
-                            </li>
-                            <li className="nav-item">
-                                <a className="nav-link" href="#">
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-            <main className="my-form" style={{ display: 'flex' }}>
-                <div className="container" style={{ display: '' }}>
-                    <div className="row justify-content-center">
-                        <div className="col-md-8">
-                            <div className="card" style={{ display: '' }}>
-                                <div className="card-header">Registration</div>
-                                <div className="card-body">
-
-                                    <Form>
+             <Form>
                                         <Form.Group className="mb-3" controlId="fullname">
                                             <Form.Label>Name</Form.Label>
                                             <Form.Control type="text" placeholder="" name='fullname' onChange={(event:React.ChangeEvent<HTMLTextAreaElement>):void=>{
@@ -179,13 +139,7 @@ export function Registration(){
                                         <Button variant="primary" type="submit" onClick={registerPatient}>
                                             Submit
                                         </Button>
-                                    </Form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
+             </Form>
         </div>
     );
 }

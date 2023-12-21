@@ -1,4 +1,7 @@
 
+export interface PostsProps{
+    Patients: Patients[];
+ }
 export interface Patients{
     pid: string;
     fullname:string;
