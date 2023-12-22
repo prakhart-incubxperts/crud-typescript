@@ -9,6 +9,7 @@ import Backdrop from '@mui/material/Backdrop';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
+import { useNavigate } from 'react-router-dom';
 const style = {
     position: 'relative',
     top: '50%',
@@ -27,6 +28,8 @@ const style = {
 
 export function PatientDetails(): JSX.Element{
 
+    
+    const [pid,setPid] = useState<string|any>();
     const [fullname, setFullname] = useState<string |any>();
     const [address, setAddress] = useState<string |any>();
     const [refdoc, setRefdoc] = useState<string |any>();
@@ -41,60 +44,63 @@ export function PatientDetails(): JSX.Element{
     const [open, setOpen] = useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
-    const [formValue,setFormValue]=useState<Patients>();
-    var oldpid:string,oldimage:string;
+    const Navigate=useNavigate();
+    let editedData:Patients;
+    let oldpid:string,oldimage:string;
+    
+    
+    
     function edit(pid:string){
 
-        console.log('pid from edit():',pid);
-        console.log('pid',pid);
+        
                 oldpid=pid;
-
     console.log(' called from edit pid:', oldpid);
-
-    let data;
+    let data:any[];
     const value=localStorage.getItem('PatientDetails');
     if(typeof(value)==='string'){
         data = JSON.parse(value);
-
         var index:number=0;
-    data.findIndex(function (entry:any, i:number) {
-      if (entry.pid == (pid)) {
+        data.findIndex(function (entry:any, i:number) {
+        if (entry.pid == (pid)) {
         index = i;
         return true;
       }
     });
-
-    let firstValue:any = Object.values(data)[index];
-    oldimage=firstValue.image;
-    console.log("fetched data",firstValue);
-    console.log("fetched data fullname:",firstValue.fullname);
-    
-    setFormValue(firstValue);
-    console.log('formValue type:',typeof(formValue));
-    setFullname(firstValue.fullname);
-    setGender(fullname.gender);
-    setDob(firstValue.dob);
-    setAddress(firstValue.address);
-    setRefdoc(firstValue.refdoc);
-    setCountry(firstValue.country);
-    setState(firstValue.state);
-    setEmail(firstValue.email);
-    setMobile(firstValue.mobile);
-    setNote(firstValue.note);
-
-
-    //console.log('formValue dob:',formValue.dob);
+            let fetchedValue:any = Object.values(data)[index];
+            oldimage=fetchedValue.image;
+            console.log("fetched data fullname:",fetchedValue.fullname);
+            setPid(pid);
+            setFullname(fetchedValue.fullname);
+            setGender(fetchedValue.gender);
+            setDob(fetchedValue.dob);
+            setAddress(fetchedValue.address);
+            setRefdoc(fetchedValue.refdoc);
+            setCountry(fetchedValue.country);
+            setState(fetchedValue.state);
+            setEmail(fetchedValue.email);
+            setMobile(fetchedValue.mobile);
+            setNote(fetchedValue.note);
+            setImage(oldimage);
+            debugger;
+            var splcdData=data.splice(index,1);
+            if(data.length!=0){
+              localStorage.setItem('PatientDetails', JSON.stringify(data));
+            }
+            else{
+                localStorage.clear();
+            } 
     handleOpen();
     }
     
-
-
-    
-        
-        editPatientData(pid);
     }
+
     function deletePatient(pid:string){
-        deletePatientData();
+        deletePatientData(pid);
+        Navigate("/");
+    }
+    function editPatient():void{
+      editedData={pid:pid,fullname:fullname,gender:gender,dob:dob, refdoc:refdoc, address:address, country:country, state:state, mobile:mobile, email:email, note:note, image:image}
+      editPatientData(editedData);
     }
 
 
@@ -165,14 +171,9 @@ export function PatientDetails(): JSX.Element{
       console.log(value);
       
       if (typeof value === 'string') {
-         dat = JSON.parse(value) // ok
-
-        
+         dat = JSON.parse(value) // ok 
     }
-      //let dat= (JSON.parse(localStorage.getItem('PatientDetails')));
-    //   useEffect(() => {
-    //     console.log('table data:', data);
-    //   })
+     
     console.log('dat',dat)
 
     return(
@@ -273,7 +274,7 @@ export function PatientDetails(): JSX.Element{
                         setNote(event.target.value);
                       }}/>
                                         </Form.Group>
-                                        <Button variant="primary" type="submit" >
+                                        <Button variant="primary" type="submit" onClick={(event:React.MouseEvent<HTMLButtonElement>):void=>{editPatient()}}>
                                             Submit
                                         </Button>
              </Form>

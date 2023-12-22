@@ -1,0 +1,9 @@
+.imageBox{
+    height:'127px';
+    width:'127px';
+    border-style:'solid';
+    float:'right';
+}
+input[type='file'] {
+    color: transparent;
+  }

@@ -1,28 +1,35 @@
-import { BrowserRouter as Router} from "react-router-dom";
+import { Link, BrowserRouter as Router, useNavigate} from "react-router-dom";
 import { Route,Routes } from "react-router-dom";
 import { PatientDetails } from "../Pages/patientDetails";
 import { Registration } from "../Pages/registration";
+import { Button } from "react-bootstrap";
 
 export function Routing(){
+   // const Navigate=useNavigate();
     return(
         <div>  
         <title></title>
         <nav className="navbar navbar-expand-lg navbar-light navbar-laravel">
             <div className="container">
-                <a className="navbar-brand" href="#">
+                <a className="navbar-brand" href="">
                     Patient Screen
                 </a>
 
                 <div className="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul className="navbar-nav ml-auto">
+                        <div>
                         <li className="nav-item">
-                            
+                        <a href="/register"><button className="btn-primary">Register</button></a>
                         </li>
+                        </div>&nbsp;
+                        <div>
                         <li className="nav-item">
-                            <a className="nav-link" href="#">
-                            </a>
+                        <a href="/"><button className="btn-info">Home</button></a> 
                         </li>
+                        </div>
                     </ul>
+                    
+                   
                 </div>
             </div>
         </nav>
@@ -35,8 +42,8 @@ export function Routing(){
                             <div className="card-body">
                                     <Router>
                                             <Routes>
-                                                <Route  path="/" element={<Registration/>}></Route>
-                                                <Route  path="/display" element={<PatientDetails/>}></Route>
+                                                <Route  path="/register" element={<Registration/>}></Route>
+                                                <Route  path="/" element={<PatientDetails/>}></Route>
                                             </Routes>
                                     </Router>
                             </div>
