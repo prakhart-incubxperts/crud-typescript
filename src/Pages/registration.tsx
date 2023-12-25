@@ -12,26 +12,29 @@ import { nanoid } from 'nanoid';
 import * as EmailValidator from 'email-validator';
 import { NameValidator } from "clean-name-validator";
 import '../Asset/imagebox.css';
+const [open, setOpen] = useState(false);
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
 import { FormComponent } from "./formComponent";
 //import { patient } from "../entities/patient";
 
 
 export function Registration() {
 
-    let details:Patients={
-        pid: "",
-        fullname: "",
-        gender: "",
-        dob: "",
-        refdoc: "",
-        address: "",
-        country: "",
-        state: "",
-        mobile: "",
-        email: "",
-        note: "",
-        image: ""
-    };
+    // let details:Patients={
+    //     pid: "",
+    //     fullname: "",
+    //     gender: "",
+    //     dob: "",
+    //     refdoc: "",
+    //     address: "",
+    //     country: "",
+    //     state: "",
+    //     mobile: "",
+    //     email: "",
+    //     note: "",
+    //     image: ""
+    // };
     //const [details,setDetails]=useState<Patients>({} as Patients);
     // const [pid, setPid] = useState<string | any>();
     // const [fullname, setFullname] = useState<string | any>();
@@ -94,7 +97,7 @@ export function Registration() {
 
                 </div>
             </div>
-            {FormComponent(details)}
+             
         </div>
     );
 }
@@ -102,4 +105,4 @@ export function Registration() {
 function imageToBase64(name: any) {
     throw new Error("Function not implemented.");
 }
-
+//pid={""} fullname={""} gender={""} dob={""} refdoc={""} address={""} country={""} state={""} mobile={""} email={""} note={""} image={""}S

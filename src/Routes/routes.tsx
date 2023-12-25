@@ -3,9 +3,14 @@ import { Route,Routes } from "react-router-dom";
 import { PatientDetails } from "../Pages/patientDetails";
 import { Registration } from "../Pages/registration";
 import { Button } from "react-bootstrap";
+import { FormComponent } from "../Pages/formComponent";
+import { useState } from "react";
+
 
 export function Routing(){
+    
    // const Navigate=useNavigate();
+   const[value,setValue]= useState<string>("register");
     return(
         <div>  
         <title></title>
@@ -42,7 +47,7 @@ export function Routing(){
                             <div className="card-body">
                                     <Router>
                                             <Routes>
-                                                <Route  path="/register" element={<Registration/>}></Route>
+                                                <Route  path="/register" element={<FormComponent/>}></Route>
                                                 <Route  path="/" element={<PatientDetails/>}></Route>
                                             </Routes>
                                     </Router>

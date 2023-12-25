@@ -10,6 +10,7 @@ import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
 import { useNavigate } from 'react-router-dom';
+import { FormComponent } from './formComponent';
 const style = {
     position: 'relative',
     top: '50%',
@@ -19,7 +20,6 @@ const style = {
     bgcolor: 'background.paper',
     border: '2px solid #000',
     boxShadow: 24,
-    p: 4,
     overflow: 'scroll',
     height: '100%'
   };
@@ -28,19 +28,20 @@ const style = {
 
 export function PatientDetails(): JSX.Element{
 
-    
-    const [pid,setPid] = useState<string|any>();
-    const [fullname, setFullname] = useState<string |any>();
-    const [address, setAddress] = useState<string |any>();
-    const [refdoc, setRefdoc] = useState<string |any>();
-    const [email, setEmail] = useState<string |any>();
-    const [country, setCountry] = useState<string |any>();
-    const [state, setState] = useState<string |any>();
-    const [gender, setGender] = useState<string |any>();
-    const [dob, setDob] = useState<string |any>();
-    const [note, setNote] = useState<string |any>();
-    const [mobile, setMobile] = useState<string |any>();
-    const [image, setImage] = useState<string |any>();
+   
+    const [data,setData]=useState<Patients>({pid:"",fullname:"",gender:"",dob:"", refdoc:"", address:"", country:"", state:"", mobile:"", email:"", note:"", image:""});
+    // const [pid,setPid] = useState<string>();
+    // const [fullname, setFullname] = useState<string |any>();
+    // const [address, setAddress] = useState<string |any>();
+    // const [refdoc, setRefdoc] = useState<string |any>();
+    // const [email, setEmail] = useState<string |any>();
+    // const [country, setCountry] = useState<string |any>();
+    // const [state, setState] = useState<string |any>();
+    // const [gender, setGender] = useState<string |any>();
+    // const [dob, setDob] = useState<string |any>();
+    // const [note, setNote] = useState<string |any>();
+    // const [mobile, setMobile] = useState<string |any>();
+    // const [image, setImage] = useState<string |any>();
     const [open, setOpen] = useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -55,7 +56,7 @@ export function PatientDetails(): JSX.Element{
         
                 oldpid=pid;
     console.log(' called from edit pid:', oldpid);
-    let data:any[];
+    let data:Object[];
     const value=localStorage.getItem('PatientDetails');
     if(typeof(value)==='string'){
         data = JSON.parse(value);
@@ -69,27 +70,30 @@ export function PatientDetails(): JSX.Element{
             let fetchedValue:any = Object.values(data)[index];
             oldimage=fetchedValue.image;
             console.log("fetched data fullname:",fetchedValue.fullname);
-            setPid(pid);
-            setFullname(fetchedValue.fullname);
-            setGender(fetchedValue.gender);
-            setDob(fetchedValue.dob);
-            setAddress(fetchedValue.address);
-            setRefdoc(fetchedValue.refdoc);
-            setCountry(fetchedValue.country);
-            setState(fetchedValue.state);
-            setEmail(fetchedValue.email);
-            setMobile(fetchedValue.mobile);
-            setNote(fetchedValue.note);
-            setImage(oldimage);
+
+            // setPid(pid);
+            // setFullname(fetchedValue.fullname);
+            // setGender(fetchedValue.gender);
+            // setDob(fetchedValue.dob);
+            // setAddress(fetchedValue.address);
+            // setRefdoc(fetchedValue.refdoc);
+            // setCountry(fetchedValue.country);
+            // setState(fetchedValue.state);
+            // setEmail(fetchedValue.email);
+            // setMobile(fetchedValue.mobile);
+            // setNote(fetchedValue.note);
+            // setImage(oldimage);
             debugger;
             var splcdData=data.splice(index,1);
             if(data.length!=0){
               localStorage.setItem('PatientDetails', JSON.stringify(data));
             }
             else{
-                localStorage.clear();
+               // localStorage.clear();
             } 
-    handleOpen();
+    //handleOpen();
+    
+          <FormComponent/>
     }
     
     }
@@ -99,7 +103,7 @@ export function PatientDetails(): JSX.Element{
         Navigate("/");
     }
     function editPatient():void{
-      editedData={pid:pid,fullname:fullname,gender:gender,dob:dob, refdoc:refdoc, address:address, country:country, state:state, mobile:mobile, email:email, note:note, image:image}
+      //editedData={pid:pid,fullname:fullname,gender:gender,dob:dob, refdoc:refdoc, address:address, country:country, state:state, mobile:mobile, email:email, note:note, image:image}
       editPatientData(editedData);
     }
 
@@ -183,7 +187,7 @@ export function PatientDetails(): JSX.Element{
                 data={dat}
             />
             
-            <Modal
+            {/* <Modal
                       aria-labelledby="transition-modal-title"
                       aria-describedby="transition-modal-description"
                       open={open}
@@ -280,7 +284,7 @@ export function PatientDetails(): JSX.Element{
              </Form>
                         </Box>
                       </Fade>
-                    </Modal>
+                    </Modal> */}
         </>
     )
 }
