@@ -15,7 +15,7 @@ import '../Asset/imagebox.css';
 const [open, setOpen] = useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
-import { FormComponent } from "./formComponent";
+
 //import { patient } from "../entities/patient";
 
 

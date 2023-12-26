@@ -1,5 +1,6 @@
 import { log } from "console";
 import { Patients } from "../entities/Patients";
+import { useNavigate } from "react-router-dom";
 
 
 
@@ -39,12 +40,14 @@ export function deletePatientData(pid:string){
 
 
 export function editPatientData(data:Patients){
+  
 debugger;
   if(data != null){
     var array = JSON.parse(localStorage.getItem('PatientDetails') || '[]');
     array.push(data);
   localStorage.setItem('PatientDetails', JSON.stringify(array));
   alert("Data changed successfully...");
+    
   }
   else{
     alert("Something went wrong...")

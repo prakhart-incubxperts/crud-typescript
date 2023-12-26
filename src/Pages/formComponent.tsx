@@ -1,7 +1,7 @@
-import React from "react";
+import React, { FC, useEffect } from "react";
 import { ReactDOM } from "react";
 import { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { Form } from "react-bootstrap";
 import Button from 'react-bootstrap/Button';
 import Backdrop from '@mui/material/Backdrop';
@@ -11,9 +11,10 @@ import Fade from '@mui/material/Fade';
 import { nanoid } from 'nanoid';
 import * as EmailValidator from 'email-validator';
 import { NameValidator } from "clean-name-validator";
-
+import '../Asset/modal.css';
 import { Patients } from "../entities/Patients";
-import { save } from "../Utils/functions";
+import { editPatientData, save } from "../Utils/functions";
+import { toBeRequired } from "@testing-library/jest-dom/matchers";
 const style = {
     position: 'relative',
     top: '50%',
@@ -28,39 +29,50 @@ const style = {
     height: '100%'
   };
 
-export function FormComponent() {
-
+function  FormComponent(value:Patients){
     
-    
-    const [data,setData]=useState<Patients>({pid:"",fullname:"",gender:"",dob:"", refdoc:"", address:"", country:"", state:"", mobile:"", email:"", note:"", image:""});
-    // const [pid,setPid] = useState<string>("");
-    // const [fullname, setFullname] = useState<string>("");
-    // const [address, setAddress] = useState<string>("");
-    // const [refdoc, setRefdoc] = useState<string>("");
-    // const [email, setEmail] = useState<string>("");
-    // const [country, setCountry] = useState<string>("");
-    // const [state, setState] = useState<string>("");
-    // const [gender, setGender] = useState<string>("");
-    // const [dob, setDob] = useState<string>("");
-    // const [note, setNote] = useState<string>("");
-    // const [mobile, setMobile] = useState<string>("");
-    // const [image, setImage] = useState<string>("");
-    const [changebutton,setChangebutton]= useState<Function>();
+    const [data,setData]=useState<Patients>(value);
+    const [changebutton,setChangebutton]= useState();
     const [open, setOpen] = useState(true);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
     const Navigate=useNavigate();
+    const location=useLocation();
     
-   
+  
 
-    // function editPatient(){
-    //     setData({pid:pid,fullname:fullname,gender:gender,dob:dob, refdoc:refdoc, address:address, country:country, state:state, mobile:mobile, email:email, note:note, image:image})
-    // }
+    const getData =()=>{
+    if(value.pid!=null){
+      setData({pid:value.pid,fullname:value.fullname,gender:value.gender,dob:value.dob,refdoc:value.refdoc,address:value.address, country:value.state, state:value.state, mobile:value.mobile, email:value.email, note:value.note, image:value.image})
+    }
+    else if(location.state.pid!=null && location.state.pid!=""){
+      console.log("location.state:",location.state);
+      setData(location.state);
+      handleOpen();
+    }
+  }
+
+  useEffect(()=>{
+    getData()
+  },[])
+
+  const handleClick=()=>{
+    if(location.state.pid!="" && location.state!=null){
+        editPatient();  
+    }
+    else{
+      registerPatient();
+    }
+  }
+
+    function editPatient(){
+      editPatientData(data);
+      Navigate("/");
+    }
     
    function registerPatient(): void {
         debugger;
         let id: string = nanoid();
-        //setData({...data,pid:id});
         const isNameValid: boolean = NameValidator.validate(data.fullname);
         let isValid: boolean = EmailValidator.validate(data.email);
         if (data.fullname != null && data.gender != null && data.dob != null && data.email != null && isValid) {
@@ -70,7 +82,7 @@ export function FormComponent() {
                 const res = save({...data,pid:id});
                 alert('Data saved successfully...');
                 console.log(res)
-                Navigate("/register");
+                Navigate("/");
             }
             else {
                 alert('Enter valid data');
@@ -81,17 +93,6 @@ export function FormComponent() {
         }
     }
    
-   
-   
-   
-   
-   
-   
-
-    // function btn(){
-    //     if()
-    // }
-    
     return (
         <div>
         <Modal
@@ -115,13 +116,13 @@ export function FormComponent() {
                                             <Form.Label>Name</Form.Label>
                                             <Form.Control type="text" placeholder="" name='fullname' value={data.fullname} onChange={(event:React.ChangeEvent<HTMLInputElement>):void=>{
                         setData({...data,fullname:event.target.value})
-                      }} required/>
+                      }} required={true} isInvalid={true}/>
                                          </Form.Group>
                                         <Form.Group className="mb-3" controlId="gender">
                                             <Form.Label>Gender: </Form.Label>
                                             <Form.Select aria-label="Default select example" className="form-control" value={data.gender} onChange={(event:React.ChangeEvent<HTMLSelectElement>):void=>{
                         setData({...data,gender:event.target.value})
-                      }} required>
+                      }} required={true} isInvalid={true}>
                                                 <option>Gender</option>
                                                 <option >Male</option>
                                                 <option >Female</option>
@@ -186,9 +187,14 @@ export function FormComponent() {
                         setData({...data,note:event.target.value})
                       }}/>
                                         </Form.Group>
-                                        <Button variant="primary" type="submit" onClick={(event:React.MouseEvent<HTMLButtonElement>):void=>{registerPatient()}}>
+                                        <Form.Group className='button' controlId="button">
+                                        <Button variant="primary" type="submit" onClick={(event:React.MouseEvent<HTMLButtonElement>):void=>{handleClick()}}>
                                             Submit
                                         </Button>
+                                        <Button variant="danger" type="submit" onClick={(event:React.MouseEvent<HTMLButtonElement>):void=>{}}>
+                                            Cancel
+                                        </Button>
+                                        </Form.Group>
              </Form>
                         </Box>
                       </Fade>
@@ -196,3 +202,4 @@ export function FormComponent() {
                     </div>
     )
 }
+export default FormComponent;
