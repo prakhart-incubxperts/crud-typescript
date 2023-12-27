@@ -56,7 +56,7 @@ export function PatientDetails(): JSX.Element{
         return true;
       }
     });
-            let fetchedValue:any = Object.values(data)[index];
+            let fetchedValue:Patients = Object.values(data)[index];
             oldimage=fetchedValue.image;
             console.log("fetched data fullname:",fetchedValue.fullname);
             
@@ -67,7 +67,7 @@ export function PatientDetails(): JSX.Element{
             else{
                // localStorage.clear();
             } 
-    Navigation("/edit",{state:fetchedValue});
+    Navigation("/edit",{state:fetchedValue},);
     }
     
     }

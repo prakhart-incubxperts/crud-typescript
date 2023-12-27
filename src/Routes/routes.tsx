@@ -18,7 +18,7 @@ export function Routing() {
             <nav className="navbar navbar-expand-lg navbar-light navbar-laravel">
                 <div className="container">
                     <a className="navbar-brand" href="">
-                        Patient Screen
+                        Patient Details
                     </a>
 
                     <div className="collapse navbar-collapse" id="navbarSupportedContent">
@@ -44,11 +44,11 @@ export function Routing() {
                     <div className="row justify-content-center">
                         <div className="col-md-8">
                             <div className="card" style={{ display: '' }}>
-                                <div className="card-header">Registration</div>
+                                <div className="card-header"></div>
                                 <div className="card-body">
                                     <Router>
                                         <Routes>
-                                            <Route path="/register" element={<FormComponent pid={""} fullname={""} gender={""} dob={""} refdoc={""} address={""} country={""} state={""} mobile={""} email={""} note={""} image={""} />}></Route>
+                                            {/* <Route path="/register" element={<FormComponent pid={""} fullname={""} gender={""} dob={""} refdoc={""} address={""} country={""} state={""} mobile={""} email={""} note={""} image={""} />}></Route> */}
                                             <Route path="/" element={<><PatientDetails />,<FormComponent pid={""} fullname={""} gender={""} dob={""} refdoc={""} address={""} country={""} state={""} mobile={""} email={""} note={""} image={""}/></>}></Route>
                                             <Route path='/edit' element={<FormComponent pid={""} fullname={""} gender={""} dob={""} refdoc={""} address={""} country={""} state={""} mobile={""} email={""} note={""} image={""} {...{}}/>}></Route>
                                         </Routes>
