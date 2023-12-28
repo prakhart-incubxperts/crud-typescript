@@ -37,6 +37,7 @@
 .btn-left{
   float: left;
   margin: 3px;
+  margin-left: 370px;
 }
 .btn-right{
   float: right;
