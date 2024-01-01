@@ -9,8 +9,9 @@ import Backdrop from '@mui/material/Backdrop';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
-import { Route, useNavigate } from 'react-router-dom';
+import { Route, useNavigate, useLocation } from 'react-router-dom';
 import { propTypes } from 'react-bootstrap/esm/Image';
+import FormComponent from './formComponent';
 
 const style = {
   position: 'relative',
@@ -27,8 +28,22 @@ const style = {
 
 
 
-export function PatientDetails(): JSX.Element {
-
+export function PatientDetails(props: any) {
+  //debugger
+  const[propsValue,setPropsValue]=useState<boolean>(false);
+  
+  //console.log('props:',props.isvalid);
+  
+  //const [isToggle,setIsToggle]=useState(props.isvalid);
+  console.log("props:",props);
+  
+   console.log('props>>>:',props.isvalid);
+  function handleRegister(){
+    
+     setPropsValue(!propsValue);
+    
+    
+  }
 
   const [data, setData] = useState<Patients>({ pid: "", fullname: "", gender: "", dob: "", refdoc: "", address: "", country: "", state: "", mobile: "", email: "", note: "", image: "" });
   const [open, setOpen] = useState(false);
@@ -37,10 +52,11 @@ export function PatientDetails(): JSX.Element {
   const Navigation = useNavigate();
   let editedData: Patients;
   let oldpid: string, oldimage: string;
+  //const [fetchedValue,setFetchedValue]=useState<Patients>(data);
 
-
-
+  
   function edit(pid: string) {
+    
 
     debugger;
     oldpid = pid;
@@ -56,9 +72,9 @@ export function PatientDetails(): JSX.Element {
           return true;
         }
       });
-      let fetchedValue: Patients = Object.values(data)[index];
-      oldimage = fetchedValue.image;
-      console.log("fetched data fullname:", fetchedValue.fullname);
+       let fetchedValue =(Object.values(data)[index]);
+     // oldimage = fetchedValue.image;
+      //console.log("fetched data fullname:", fetchedValue.fullname);
 
       let splcdData: Patients[] = data.splice(index, 1);
       if (data.length != 0) {
@@ -67,7 +83,8 @@ export function PatientDetails(): JSX.Element {
       else {
         // localStorage.clear();
       }
-      Navigation("/edit", { state: fetchedValue },);
+       
+      Navigation("/edit", { state: fetchedValue });
     }
 
   }
@@ -152,12 +169,14 @@ export function PatientDetails(): JSX.Element {
   console.log('dat', dat)
 
   return (
+    
     <>
+    <Button variant="primary" className="btn-right" type="submit" onClick={handleRegister}>Register</Button>
       <DataTable
         columns={columns}
         data={dat}
       />
-
+      
     </>
   )
 }

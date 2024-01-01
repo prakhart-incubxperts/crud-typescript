@@ -19,10 +19,13 @@ import { toBeRequired } from "@testing-library/jest-dom/matchers";
 import { PatientDetails } from "./patientDetails";
 import countries from '../entities/countryState.json';
 import states from '../entities/state.json'
-const style = {
+import App from "../App";
+let style = {
   position: 'relative',
   top: '50%',
   left: '50%',
+  margin:'5px',
+  marginBottom: '5px',
   transform: 'translate(-50%, -50%)',
   width: 600,
   bgcolor: 'background.paper',
@@ -31,72 +34,63 @@ const style = {
   p: 4,
   //overflow: "scroll",
   height: '100%',
+  
 };
 
-function FormComponent(value: Patients) {
+function FormComponent(props:any) {
 
-  const [data, setData] = useState<Patients>(value);
+  const navigate = useNavigate();
+  
+  const [data, setData] = useState<Patients>(props);
+  console.log("props.value:",props.value);
+  
   const [changebutton, setChangebutton] = useState();
   const [open, setOpen] = useState(true);
-  const handleOpen = () => {setOpen(true);}
-  const handleClose = () =>  { setOpen(false);}
-  const Navigate = useNavigate();
+  const handleOpen = () => { setOpen(true); }
+  const handleClose = () => {setOpen(false)}
+  
   const location = useLocation();
   const [isValidation, setIsValidation] = useState<boolean>(true);
-  // const [cdata, setName] = useState({ countrie: "", state: "" });
-  // const countrie = ['Germany', 'India', 'France'];
-  // const istate = ['MH', 'Goa', 'MP', 'Delhi'];
-  // const gstate = ['select state', 'Duesseldorf', 'Leinfelden-Echterdingen', 'Eschborn']
   const rules = { mobile: { size: 10, type: 'number' } }
   let state;
+  let modal:HTMLElement;
   let d = new Date(Date.now());
   let res = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
-  const ctry=[{Country:'Select country'},
-    {Country:'INDIA',state:[{name:'MH'},{name:'Goa'},{name:'Delhi'}]},
-              {Country:'USA',state:[{name:'NY'},{name:'MI'}]}]
-
-  
-  // const[stateList,setStateList]=useState(null);
-  // if (cdata.countrie === "Germany") {
-  //   state = gstate.map((gstate, key) => <option key={key} value={gstate}>{gstate}</option>)
-  // }
-  // else if (cdata.countrie === "India") {
-  //   state = istate.map((istate, key) => <option key={key} value={istate}>{istate}</option>)
-  // }
-  
-
-  //const countries = countrie.map((countrie, key) => <option key={key} value={countrie}>{countrie}</option>);
-  let ctryname=countries.map((item, key) =><option key={key} value={item.country}>{item.country}</option>)
-  console.log("ctryname",ctryname);
-
-
-  let countriesData= countries.map((item, key) => (console.log("item data>>>",item.cid)))
-  let filterid;
-  const countrytoFilter=data.country;
-  filterid=ctryname.map((ctryname,countrytoFilter)=>{}  )
-  console.log("filterid",filterid);
-  
-  
-  let sts: any;
-  const countryToFilter = data.country;
-  function filterStateNamesByCountry(datas: any[],countryToFilter: string) {
-    const filteredStates = datas
-      .filter((country: { Country: any; }) => country.Country === data.country)
-      .map((country: { state: { name: any; }[]; }) => country.state.map((state: { name: any; }) => state.name))
-      .flat();
-  
-    return filteredStates;
+  function handleCancel(){
+    handleClose()
+    navigate("/")
   }
   
-  const filteredStateNames = filterStateNamesByCountry(ctry, countryToFilter);
-  const filterState=filteredStateNames.map((filteredStateNames, key) => <option key={key} value={filteredStateNames}>{filteredStateNames}</option>)
-  
-  function handleCountry(e:any) {
-    
+
+
+  let ctryname = countries.map((item, key) => <option key={key} value={item.country}>{item.country}</option>)
+  console.log("ctryname", ctryname);
+  const countrytoFilter = data.country;
+
+
+  let countryFilter = countries.filter(function (value) {
+    return value.country === data.country;
+  }).map(function (value) {
+    return value.cid;
+  })
+  console.log("cid", countryFilter);
+
+  let statefilter = states.filter(function (value) {
+    return value.cid == countryFilter[0];
+  }).map(function (value) {
+    return value;
+  })
+  console.log('statefilter:', statefilter);
+  const filterState = statefilter.map((value, key) => <option key={key} value={value.state}>{value.state}</option>)
+  console.log('filtered state:', filterState);
+
+
+  function handleCountry(e: any) {
+
     // setName({ ...cdata, countrie: e.target.value });
-     setData({ ...data, country: e.target.value });
-     //setStateList(e.state);
-    
+    setData({ ...data, country: e.target.value });
+    //setStateList(e.state);
+
     // console.log('country', data.country);
 
   }
@@ -114,8 +108,8 @@ function FormComponent(value: Patients) {
 
 
   const getData = () => {
-    if (value != null) {
-      setData({ pid: value.pid, fullname: value.fullname, gender: value.gender, dob: value.dob, refdoc: value.refdoc, address: value.address, country: value.state, state: value.state, mobile: value.mobile, email: value.email, note: value.note, image: value.image })
+    if (props != null) {
+      setData({ pid: props.pid, fullname: props.fullname, gender: props.gender, dob: props.dob, refdoc: props.refdoc, address: props.address, country: props.state, state: props.state, mobile: props.mobile, email: props.email, note: props.note, image: props.image })
     }
     if (location.state != null) {
       console.log("location.state:", location.state);
@@ -128,6 +122,8 @@ function FormComponent(value: Patients) {
     getData()
   }, [])
 
+  
+
   const handleClick = () => {
     if (location.state != "" && location.state != null) {
       editPatient();
@@ -139,7 +135,7 @@ function FormComponent(value: Patients) {
 
   function editPatient() {
     editPatientData(data);
-    Navigate("/");
+    navigate("/");
   }
 
   function registerPatient(): void {
@@ -155,7 +151,7 @@ function FormComponent(value: Patients) {
         const res = save({ ...data, pid: id });
         alert('Data saved successfully...');
         console.log(res)
-        Navigate("/");
+        navigate("/");
       }
       else {
         alert('Enter valid Name');
@@ -181,6 +177,7 @@ function FormComponent(value: Patients) {
             timeout: 500,
           },
         }}
+        id="modal"
       >
         <Fade in={open}>
           <Box sx={style}>
@@ -210,7 +207,7 @@ function FormComponent(value: Patients) {
                     Please select Gender.
                   </div>
                 </Form.Group>
-                <Form.Group className="mb-3" controlId="dob">
+                <Form.Group className="mb-3" >
                   <Form.Label>DOB</Form.Label>
                   <Form.Control type="date" className="form-control" id="date-inp" placeholder="" max={res} name='dob' value={data.dob} onChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
                     setData({ ...data, dob: event.target.value })
@@ -289,7 +286,7 @@ function FormComponent(value: Patients) {
                 <Button variant="primary" className="btn-left" type="submit" onClick={handleClick}>
                   Submit
                 </Button>
-                <Button variant="danger" className="btn-right" type="submit" onClick={handleClose}>
+                <Button variant="danger" className="btn-right" type="submit" onClick={handleCancel}>
                   Cancel
                 </Button>
               </Form.Group>
@@ -301,6 +298,14 @@ function FormComponent(value: Patients) {
   )
 }
 export default FormComponent;
+
+// export function handleDisplayModal(value:string){
+//   console.log('in formcomponent",',value)
+//   style.display=value;
+//   console.log("style.disp",style.display);
+  
+//   //FormComponent(value);
+// }
 
 function useForm<T>(): { formState: { errors: any; }; } {
   throw new Error("Function not implemented.");
