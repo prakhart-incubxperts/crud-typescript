@@ -300,13 +300,7 @@ const FormComponent = (props:any) => {
 }
 export default FormComponent;
 
-// export function handleDisplayModal(value:string){
-//   console.log('in formcomponent",',value)
-//   style.display=value;
-//   console.log("style.disp",style.display);
-  
-//   //FormComponent(value);
-// }
+
 
 function useForm<T>(): { formState: { errors: any; }; } {
   throw new Error("Function not implemented.");
