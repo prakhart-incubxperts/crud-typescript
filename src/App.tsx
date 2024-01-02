@@ -52,8 +52,7 @@ function App() {
 
                     <Router>
                       <Routes>
-                         <Route path="/" element={<PatientDetails name="Tina" />}></Route>
-                        <Route path='/edit' element={<FormComponent />}></Route>
+                         <Route path="/" element={<PatientDetails />}></Route>
                       </Routes>
                     </Router>
 

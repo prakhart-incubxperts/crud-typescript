@@ -4,13 +4,7 @@ import { Patients, PostsProps } from '../entities/Patients';
 import { deletePatientData, editPatientData } from '../Utils/functions';
 import { Button } from 'react-bootstrap';
 //import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import Backdrop from '@mui/material/Backdrop';
-import Box from '@mui/material/Box';
-import Modal from '@mui/material/Modal';
-import Fade from '@mui/material/Fade';
-import { Route, useNavigate, useLocation } from 'react-router-dom';
-import { propTypes } from 'react-bootstrap/esm/Image';
+import { Route, useNavigate } from 'react-router-dom';
 import FormComponent from './formComponent';
 
 const style = {
@@ -28,36 +22,18 @@ const style = {
 
 
 
-export function PatientDetails(props: any) {
+export function PatientDetails() {
   //debugger
-  const[propsValue,setPropsValue]=useState<boolean>(false);
-  
-  //console.log('props:',props.isvalid);
-  
-  //const [isToggle,setIsToggle]=useState(props.isvalid);
-  console.log("props:",props);
-  
-   console.log('props>>>:',props.isvalid);
-  function handleRegister(){
-    
-     setPropsValue(!propsValue);
-    
-    
-  }
-
+  const [isClicked,setIsClicked]=useState(false);
   const [data, setData] = useState<Patients>({ pid: "", fullname: "", gender: "", dob: "", refdoc: "", address: "", country: "", state: "", mobile: "", email: "", note: "", image: "" });
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
   const Navigation = useNavigate();
   let editedData: Patients;
   let oldpid: string, oldimage: string;
-  //const [fetchedValue,setFetchedValue]=useState<Patients>(data);
+  const [fetchedValue,setFetchedValue]=useState<Patients>(data);
 
   
   function edit(pid: string) {
     
-
     debugger;
     oldpid = pid;
     console.log(' called from edit pid:', oldpid);
@@ -73,18 +49,9 @@ export function PatientDetails(props: any) {
         }
       });
        let fetchedValue =(Object.values(data)[index]);
-     // oldimage = fetchedValue.image;
-      //console.log("fetched data fullname:", fetchedValue.fullname);
-
-      let splcdData: Patients[] = data.splice(index, 1);
-      if (data.length != 0) {
-        localStorage.setItem('PatientDetails', JSON.stringify(data));
-      }
-      else {
-        // localStorage.clear();
-      }
-       
-      Navigation("/edit", { state: fetchedValue });
+      
+      setFetchedValue(fetchedValue);
+      setIsClicked(true);
     }
 
   }
@@ -166,17 +133,25 @@ export function PatientDetails(props: any) {
     dat = JSON.parse(value) // ok 
   }
 
-  console.log('dat', dat)
 
+  function handleRegister(){
+    setFetchedValue(data);
+    setIsClicked(true);
+    
+  }
+  function handleCancel(){
+    setIsClicked(false);
+    
+  }
   return (
     
     <>
-    <Button variant="primary" className="btn-right" type="submit" onClick={handleRegister}>Register</Button>
+    <Button variant="primary" className="btn-right" type="button"   onClick={handleRegister}>Register</Button>
       <DataTable
         columns={columns}
         data={dat}
       />
-      
+      {isClicked && <FormComponent open={isClicked} value={fetchedValue} cancel={handleCancel}/>}
     </>
   )
 }

@@ -43,10 +43,33 @@ export function editPatientData(data:Patients){
   
 debugger;
   if(data != null){
-    var array = JSON.parse(localStorage.getItem('PatientDetails') || '[]');
+    let datas: Patients[];
+    const value = localStorage.getItem('PatientDetails');
+    if (typeof (value) === 'string') {
+      datas = JSON.parse(value);
+      var index: number = 0;
+      datas.findIndex(function (entry: any, i: number) {
+        if (entry.pid == (data.pid)) {
+          index = i;
+          return true;
+        }
+      });
+    let splcdData: Patients[] = datas.splice(index, 1);
+      
+    if (datas.length != 0) {
+        localStorage.setItem('PatientDetails', JSON.stringify(datas));
+        var array = JSON.parse(localStorage.getItem('PatientDetails') || '[]');
     array.push(data);
   localStorage.setItem('PatientDetails', JSON.stringify(array));
   alert("Data changed successfully...");
+      }
+      else{
+          var array = JSON.parse('[]');
+         array.push(data);
+      localStorage.setItem('PatientDetails', JSON.stringify(array));
+      }
+      
+    
     
   }
   else{
@@ -54,6 +77,7 @@ debugger;
   }
   
   
+}
 }
 
 

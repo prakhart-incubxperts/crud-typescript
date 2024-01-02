@@ -1,7 +1,5 @@
 import React, { FC, useEffect } from "react";
-import { ReactDOM } from "react";
 import { useState } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { Form } from "react-bootstrap";
 import Button from 'react-bootstrap/Button';
 import Backdrop from '@mui/material/Backdrop';
@@ -15,11 +13,8 @@ import { phone } from 'phone';
 import '../Asset/modal.css';
 import { Patients } from "../entities/Patients";
 import { editPatientData, save } from "../Utils/functions";
-import { toBeRequired } from "@testing-library/jest-dom/matchers";
-import { PatientDetails } from "./patientDetails";
 import countries from '../entities/countryState.json';
 import states from '../entities/state.json'
-import App from "../App";
 let style = {
   position: 'relative',
   top: '50%',
@@ -37,84 +32,73 @@ let style = {
   
 };
 
-function FormComponent(props:any) {
+const FormComponent = (props:any) => {
+  const [data, setData] = useState<Patients>(props.value);
 
-  const navigate = useNavigate();
-  
-  const [data, setData] = useState<Patients>(props);
-  console.log("props.value:",props.value);
-  
-  const [changebutton, setChangebutton] = useState();
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(props.open);
   const handleOpen = () => { setOpen(true); }
-  const handleClose = () => {setOpen(false)}
-  
-  const location = useLocation();
-  const [isValidation, setIsValidation] = useState<boolean>(true);
-  const rules = { mobile: { size: 10, type: 'number' } }
-  let state;
-  let modal:HTMLElement;
+
+  useEffect (()=>{
+    setOpen(props.open)
+  },[props.open])
+  const handleClose = () => {setOpen(false)
+    props.cancel(false)}
   let d = new Date(Date.now());
-  let res = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+  console.log('datenow',d);
+  console.log("month",d.getMonth());
+  console.log("date",d.getDate());
+  let maxDate:string;
+  if(d.getMonth()<10 ){
+    let mnth="0"+(d.getMonth()+1);
+    if(d.getDate()<10){
+      let day="0"+d.getDate();
+       maxDate=d.getFullYear() + "-" + mnth + "-" + day;
+    }
+    else{
+       maxDate=d.getFullYear() + "-" + mnth + "-" + d.getDate();
+    }
+  }
+  else{
+   maxDate = d.getFullYear() + "-" + (d.getMonth()+ 1) + "-" + (d.getDate());
+  }
+  
+
+  
+  console.log("max date:",maxDate);
+  
   function handleCancel(){
-    handleClose()
-    navigate("/")
+    handleClose();
   }
   
 
 
   let ctryname = countries.map((item, key) => <option key={key} value={item.country}>{item.country}</option>)
-  console.log("ctryname", ctryname);
-  const countrytoFilter = data.country;
-
-
   let countryFilter = countries.filter(function (value) {
     return value.country === data.country;
   }).map(function (value) {
     return value.cid;
   })
-  console.log("cid", countryFilter);
-
+  console.log("countryfilter",countryFilter);
+  
   let statefilter = states.filter(function (value) {
     return value.cid == countryFilter[0];
-  }).map(function (value) {
-    return value;
-  })
-  console.log('statefilter:', statefilter);
-  const filterState = statefilter.map((value, key) => <option key={key} value={value.state}>{value.state}</option>)
-  console.log('filtered state:', filterState);
-
-
+  }).map((value, key) => <option key={key} value={value.state}>{value.state}</option> )
+  console.log("statefilter",statefilter);
+  // useEffect(() => { setData({...data,state:data.state})}, [data.state] )
+  // const filterState = statefilter.map((value, key) => <option key={key} value={value.state}>{value.state}</option>)
+  
   function handleCountry(e: any) {
-
-    // setName({ ...cdata, countrie: e.target.value });
     setData({ ...data, country: e.target.value });
-    //setStateList(e.state);
-
-    // console.log('country', data.country);
-
   }
 
   function handleStateChange(e: any) {
-    //setName({ ...cdata, state: e.target.value });
-    setData({ ...data, state: e.state });
+    debugger
+    setData({ ...data, state: e.target.value });
   }
-
-
-  console.log('location.state=', location.state);
-  console.log('date', res);
-  console.log(new Date(Date.now()).toString());
-
-
 
   const getData = () => {
     if (props != null) {
-      setData({ pid: props.pid, fullname: props.fullname, gender: props.gender, dob: props.dob, refdoc: props.refdoc, address: props.address, country: props.state, state: props.state, mobile: props.mobile, email: props.email, note: props.note, image: props.image })
-    }
-    if (location.state != null) {
-      console.log("location.state:", location.state);
-      setData(location.state);
-      handleOpen();
+      setData({ pid: props.value.pid, fullname: props.value.fullname, gender: props.value.gender, dob: props.value.dob, refdoc: props.value.refdoc, address: props.value.address, country: props.value.country, state: props.value.state, mobile: props.value.mobile, email: props.value.email, note: props.value.note, image: props.value.image })
     }
   }
 
@@ -125,40 +109,55 @@ function FormComponent(props:any) {
   
 
   const handleClick = () => {
-    if (location.state != "" && location.state != null) {
-      editPatient();
+    debugger
+    if (props.value.pid !="" && props.value.pid!=undefined) {
+      if(data.address!="" && data.fullname!="" && data.mobile!="" && data.mobile.length==10 && data.email!="" && data.email=="[[a-z0-9._%+\-]+@[a-z]+\.[a-z]{2,}$]" && data.gender!="" && data.dob!=""){
+        editPatient(); 
+      }
+      
     }
     else {
       registerPatient();
+      
     }
   }
 
   function editPatient() {
-    editPatientData(data);
-    navigate("/");
+    if(data.address!=""&& data.fullname!=null && data.mobile!=null && data.refdoc!=null){
+      editPatientData(data);
+    }
+    
+    
   }
 
   function registerPatient(): void {
     debugger;
     let id: string = nanoid();
+    setData({ ...data, pid: id });
     const isNameValid: boolean = NameValidator.validate(data.fullname);
     let isEmailValid: boolean = EmailValidator.validate(data.email);
     const isMobileValid = phone(data.mobile, { country: 'IN' });
     if (data.fullname != null && data.gender != null && data.dob != null && data.email != null && isEmailValid && isMobileValid.isValid) {
       if (isNameValid) {
-        setData({ ...data, pid: id });
+        
         //const details: Patients = { pid: id, fullname: fullname, gender: gender, dob: dob, refdoc: refdoc, address: address, country: country, state: state, mobile: mobile, email: email, note: note, image: image };
         const res = save({ ...data, pid: id });
         alert('Data saved successfully...');
         console.log(res)
-        navigate("/");
       }
       else {
         alert('Enter valid Name');
+        handleOpen();
+        setData(data);
+        
+      //setOpen(props.open);
       }
     }
     else {
       alert('Either field is empty or not in proper format');
+      
+      setData(data);
+      setOpen(props.open);
     }
   }
 
@@ -186,7 +185,7 @@ function FormComponent(props:any) {
               <Form.Group className="modal-body">
                 <Form.Group className="mb-3" controlId="fullname">
                   <Form.Label>Name</Form.Label>
-                  <Form.Control type="text" placeholder="" name='fullname' pattern="^[a-zA-Z]+$" value={data.fullname} onChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
+                  <Form.Control type="text" placeholder="" name='fullname' pattern="^[a-zA-Z]{3,}" value={data.fullname} onChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
                     setData({ ...data, fullname: event.target.value })
                   }} required={true} isInvalid={false} /><div className="invalid-feedback">
                     Please enter Name.
@@ -209,7 +208,7 @@ function FormComponent(props:any) {
                 </Form.Group>
                 <Form.Group className="mb-3" >
                   <Form.Label>DOB</Form.Label>
-                  <Form.Control type="date" className="form-control" id="date-inp" placeholder="" max={res} name='dob' value={data.dob} onChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
+                  <Form.Control type="date" className="form-control" id="date-inp" placeholder="" max={maxDate} name='dob' value={data.dob} onChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
                     setData({ ...data, dob: event.target.value })
                   }} required={true} isInvalid={false} /> <div className="invalid-feedback">Please enter Date of Birth.</div>
                 </Form.Group>
@@ -218,7 +217,7 @@ function FormComponent(props:any) {
                   <Form.Select aria-label="Default select example" className="form-control" value={data.refdoc} onChange={(event: React.ChangeEvent<HTMLSelectElement>): void => {
                     setData({ ...data, refdoc: event.target.value })
                   }} required={true} isInvalid={false}>
-                    <option value="">Select Doctor</option>
+                    <option value="" disabled>Select Doctor</option>
                     <option>Dr.1</option>
                     <option>Dr.2</option>
                   </Form.Select>
@@ -234,7 +233,9 @@ function FormComponent(props:any) {
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="country">
                   <Form.Label>Country :</Form.Label>
-                  <select className="form-control" value={data.country} onChange={handleCountry}>{ctryname}</select>
+            
+                  <select className="form-control" value={data.country} onChange={handleCountry}><option value={""} disabled>select country...</option>
+                    {ctryname}</select>
                   {/* <select className="form-control" value={cdata.countrie} onChange={handleCountry}>{countries}</select> */}
                   {/* <Form.Select aria-label="Default select example" className="form-control" value={cdata.countrie} onChange={(event:React.ChangeEvent<HTMLSelectElement>):void=>{
                         setData({...data,country:cdata.countrie})
@@ -246,7 +247,7 @@ function FormComponent(props:any) {
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="state">
                   <Form.Label>State</Form.Label>
-                  <select className="form-control" value={data.state} onChange={handleStateChange}>{filterState}</select>
+                  <select className="form-control" value={data.state} onChange={handleStateChange}><option value={""} disabled>select state...</option>{statefilter}</select>
                   {/* <Form.Select aria-label="Default select example" className="form-control" value={data.state} onChange={(event:React.ChangeEvent<HTMLSelectElement>):void=>{
                         setData({...data,state:event.target.value})
                       }} required={true} isInvalid={true}>
@@ -283,7 +284,7 @@ function FormComponent(props:any) {
                 </Form.Group>
               </Form.Group>
               <Form.Group controlId="button">
-                <Button variant="primary" className="btn-left" type="submit" onClick={handleClick}>
+                <Button variant="primary" className="btn-left" type="submit"  onClick={handleClick}>
                   Submit
                 </Button>
                 <Button variant="danger" className="btn-right" type="submit" onClick={handleCancel}>
