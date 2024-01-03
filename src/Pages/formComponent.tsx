@@ -14,12 +14,14 @@ import '../Asset/modal.css';
 import { Patients } from "../entities/Patients";
 import { editPatientData, save } from "../Utils/functions";
 import countries from '../entities/countryState.json';
-import states from '../entities/state.json'
+import states from '../entities/state.json';
+import imageToBase64 from "image-to-base64";
+
 let style = {
   position: 'relative',
   top: '50%',
   left: '50%',
-  margin:'5px',
+  margin: '5px',
   marginBottom: '5px',
   transform: 'translate(-50%, -50%)',
   width: 600,
@@ -27,49 +29,41 @@ let style = {
   border: '2px solid #000',
   boxShadow: 24,
   p: 4,
-  //overflow: "scroll",
   height: '100%',
-  
 };
 
-const FormComponent = (props:any) => {
+const FormComponent = (props: any) => {
   const [data, setData] = useState<Patients>(props.value);
-
   const [open, setOpen] = useState(props.open);
   const handleOpen = () => { setOpen(true); }
 
-  useEffect (()=>{
+  useEffect(() => {
     setOpen(props.open)
-  },[props.open])
-  const handleClose = () => {setOpen(false)
-    props.cancel(false)}
+  }, [props.open])
+  const handleClose = () => {
+    setOpen(false)
+    props.cancel(false)
+  }
   let d = new Date(Date.now());
-  console.log('datenow',d);
-  console.log("month",d.getMonth());
-  console.log("date",d.getDate());
-  let maxDate:string;
-  if(d.getMonth()<10 ){
-    let mnth="0"+(d.getMonth()+1);
-    if(d.getDate()<10){
-      let day="0"+d.getDate();
-       maxDate=d.getFullYear() + "-" + mnth + "-" + day;
+  let maxDate: string;
+  if (d.getMonth() < 10) {
+    let mnth = "0" + (d.getMonth() + 1);
+    if (d.getDate() < 10) {
+      let day = "0" + d.getDate();
+      maxDate = d.getFullYear() + "-" + mnth + "-" + day;
     }
-    else{
-       maxDate=d.getFullYear() + "-" + mnth + "-" + d.getDate();
+    else {
+      maxDate = d.getFullYear() + "-" + mnth + "-" + d.getDate();
     }
   }
-  else{
-   maxDate = d.getFullYear() + "-" + (d.getMonth()+ 1) + "-" + (d.getDate());
+  else {
+    maxDate = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + (d.getDate());
   }
-  
 
-  
-  console.log("max date:",maxDate);
-  
-  function handleCancel(){
+  function handleCancel() {
     handleClose();
   }
-  
+
 
 
   let ctryname = countries.map((item, key) => <option key={key} value={item.country}>{item.country}</option>)
@@ -78,15 +72,14 @@ const FormComponent = (props:any) => {
   }).map(function (value) {
     return value.cid;
   })
-  console.log("countryfilter",countryFilter);
-  
+  console.log("countryfilter", countryFilter);
+
   let statefilter = states.filter(function (value) {
     return value.cid == countryFilter[0];
-  }).map((value, key) => <option key={key} value={value.state}>{value.state}</option> )
-  console.log("statefilter",statefilter);
-  // useEffect(() => { setData({...data,state:data.state})}, [data.state] )
-  // const filterState = statefilter.map((value, key) => <option key={key} value={value.state}>{value.state}</option>)
-  
+  }).map((value, key) => <option key={key} value={value.state}>{value.state}</option>)
+  console.log("statefilter", statefilter);
+
+
   function handleCountry(e: any) {
     setData({ ...data, country: e.target.value });
   }
@@ -106,28 +99,33 @@ const FormComponent = (props:any) => {
     getData()
   }, [])
 
-  
+
 
   const handleClick = () => {
     debugger
-    if (props.value.pid !="" && props.value.pid!=undefined) {
-      if(data.address!="" && data.fullname!="" && data.mobile!="" && data.mobile.length==10 && data.email!="" && data.email=="[[a-z0-9._%+\-]+@[a-z]+\.[a-z]{2,}$]" && data.gender!="" && data.dob!=""){
-        editPatient(); 
+    if (props.value.pid != "" && props.value.pid != undefined) {
+      let stringCheck = data.email;
+      let myregex = new RegExp("[a-z0-9._%+\-]+@[a-z]+\.[a-z]{2,}$");
+      let result = stringCheck.match(myregex);
+      console.log(result);
+
+      if (data.address != "" && data.fullname != "" && data.mobile != "" && data.mobile.length == 10 && data.email != "" && result && data.gender != "" && data.dob != "") {
+        editPatient();
       }
-      
+
     }
     else {
       registerPatient();
-      
+
     }
   }
 
   function editPatient() {
-    if(data.address!=""&& data.fullname!=null && data.mobile!=null && data.refdoc!=null){
+    if (data.address != "" && data.fullname != null && data.mobile != null && data.refdoc != null) {
       editPatientData(data);
     }
-    
-    
+
+
   }
 
   function registerPatient(): void {
@@ -139,8 +137,6 @@ const FormComponent = (props:any) => {
     const isMobileValid = phone(data.mobile, { country: 'IN' });
     if (data.fullname != null && data.gender != null && data.dob != null && data.email != null && isEmailValid && isMobileValid.isValid) {
       if (isNameValid) {
-        
-        //const details: Patients = { pid: id, fullname: fullname, gender: gender, dob: dob, refdoc: refdoc, address: address, country: country, state: state, mobile: mobile, email: email, note: note, image: image };
         const res = save({ ...data, pid: id });
         alert('Data saved successfully...');
         console.log(res)
@@ -149,17 +145,28 @@ const FormComponent = (props:any) => {
         alert('Enter valid Name');
         handleOpen();
         setData(data);
-        
-      //setOpen(props.open);
       }
     }
     else {
       alert('Either field is empty or not in proper format');
-      
       setData(data);
       setOpen(props.open);
     }
   }
+
+
+  const convertToBase64 = (event: any) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      setData({ ...data, image: reader.result as string });
+    };
+    reader.onerror = (error) => {
+      console.log('Error: ', error);
+    };
+  };
+
 
   return (
     <div>
@@ -183,6 +190,18 @@ const FormComponent = (props:any) => {
             <h6>Form</h6>
             <Form className="was-validated">
               <Form.Group className="modal-body">
+                <Form.Group className="mb-3" controlId="image">
+                  <Form.Label>Image</Form.Label>
+                  <div className="imageBox" >
+                    <img src={data.image} style={{ height: '120px', width: '120px' }} />
+                  </div>
+                  <div>
+                    <input type='file' id='image' onChange={convertToBase64}>
+                    </input>
+
+                  </div>
+
+                </Form.Group>
                 <Form.Group className="mb-3" controlId="fullname">
                   <Form.Label>Name</Form.Label>
                   <Form.Control type="text" placeholder="" name='fullname' pattern="^[a-zA-Z]{3,}" value={data.fullname} onChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
@@ -233,14 +252,10 @@ const FormComponent = (props:any) => {
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="country">
                   <Form.Label>Country :</Form.Label>
-            
+
                   <select className="form-control" value={data.country} onChange={handleCountry}><option value={""} disabled>select country...</option>
                     {ctryname}</select>
-                  {/* <select className="form-control" value={cdata.countrie} onChange={handleCountry}>{countries}</select> */}
-                  {/* <Form.Select aria-label="Default select example" className="form-control" value={cdata.countrie} onChange={(event:React.ChangeEvent<HTMLSelectElement>):void=>{
-                        setData({...data,country:cdata.countrie})
-                      }} required={true} isInvalid={true}><select value={cdata.countrie} onChange={handleCountry}>{countries}</select>
-                                            </Form.Select> */}
+
                   <div className="invalid-feedback">
                     Please select Country.
                   </div>
@@ -248,14 +263,7 @@ const FormComponent = (props:any) => {
                 <Form.Group className="mb-3" controlId="state">
                   <Form.Label>State</Form.Label>
                   <select className="form-control" value={data.state} onChange={handleStateChange}><option value={""} disabled>select state...</option>{statefilter}</select>
-                  {/* <Form.Select aria-label="Default select example" className="form-control" value={data.state} onChange={(event:React.ChangeEvent<HTMLSelectElement>):void=>{
-                        setData({...data,state:event.target.value})
-                      }} required={true} isInvalid={true}>
-                                                <option value="" >Select State</option>
-                                                <option>MH</option>
-                                                <option>Goa</option>
-                                                <option>Delhi</option>
-                                            </Form.Select> */}
+
                   <div className="invalid-feedback">
                     Please select State.
                   </div>
@@ -284,7 +292,7 @@ const FormComponent = (props:any) => {
                 </Form.Group>
               </Form.Group>
               <Form.Group controlId="button">
-                <Button variant="primary" className="btn-left" type="submit"  onClick={handleClick}>
+                <Button variant="primary" className="btn-left" type="submit" onClick={handleClick}>
                   Submit
                 </Button>
                 <Button variant="danger" className="btn-right" type="submit" onClick={handleCancel}>
@@ -302,6 +310,4 @@ export default FormComponent;
 
 
 
-function useForm<T>(): { formState: { errors: any; }; } {
-  throw new Error("Function not implemented.");
-}
+

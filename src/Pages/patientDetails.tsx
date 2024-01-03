@@ -6,6 +6,7 @@ import { Button } from 'react-bootstrap';
 //import Button from 'react-bootstrap/Button';
 import { Route, useNavigate } from 'react-router-dom';
 import FormComponent from './formComponent';
+import axios from 'axios';
 
 const style = {
   position: 'relative',
@@ -22,7 +23,7 @@ const style = {
 
 
 
-export function PatientDetails() {
+export  function PatientDetails() {
   //debugger
   const [isClicked,setIsClicked]=useState(false);
   const [data, setData] = useState<Patients>({ pid: "", fullname: "", gender: "", dob: "", refdoc: "", address: "", country: "", state: "", mobile: "", email: "", note: "", image: "" });
@@ -124,15 +125,41 @@ export function PatientDetails() {
     ],
     []
   );
-  //let localStorage:any;
-  let dat;
-  const value = localStorage.getItem('PatientDetails');
-  console.log(value);
+  
+  // let dat;
+  // const value = localStorage.getItem('PatientDetails');
+  // console.log("value:",value);
 
-  if (typeof value === 'string') {
-    dat = JSON.parse(value) // ok 
+  // if (typeof value === 'string') {
+  //   dat = JSON.parse(value) // ok 
+  // }
+  // console.log("dat",dat);
+  let det:any;
+  const [input,setInput]=useState<Patients|any>();
+  fetchData()
+  async function fetchData(){
+    debugger
+    try{
+      const response=await axios.get('http://localhost:9000/patient', {
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS"
+          } })
+      console.log('response',response);
+      
+      det=(response.data);
+      console.log("dat",det);
+      setInput(det);
+      
+    }
+    catch(error){
+      console.log("Data not found");
+      console.log("error:",error);
+      
+      
+    }
   }
-
+  
 
   function handleRegister(){
     setFetchedValue(data);
@@ -147,9 +174,10 @@ export function PatientDetails() {
     
     <>
     <Button variant="primary" className="btn-right" type="button"   onClick={handleRegister}>Register</Button>
+      
       <DataTable
         columns={columns}
-        data={dat}
+        data={input}
       />
       {isClicked && <FormComponent open={isClicked} value={fetchedValue} cancel={handleCancel}/>}
     </>
