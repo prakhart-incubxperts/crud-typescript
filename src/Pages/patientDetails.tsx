@@ -24,6 +24,7 @@ const style = {
 
 
 export  function PatientDetails() {
+  
   //debugger
   const [isClicked,setIsClicked]=useState(false);
   const [data, setData] = useState<Patients>({ pid: "", fullname: "", gender: "", dob: "", refdoc: "", address: "", country: "", state: "", mobile: "", email: "", note: "", image: "" });
@@ -31,7 +32,9 @@ export  function PatientDetails() {
   let editedData: Patients;
   let oldpid: string, oldimage: string;
   const [fetchedValue,setFetchedValue]=useState<Patients>(data);
-
+  useEffect(() => {
+    fetchData();
+  }, []);
   
   function edit(pid: string) {
     
@@ -39,9 +42,11 @@ export  function PatientDetails() {
     oldpid = pid;
     console.log(' called from edit pid:', oldpid);
     let data: Patients[];
-    const value = localStorage.getItem('PatientDetails');
-    if (typeof (value) === 'string') {
-      data = JSON.parse(value);
+     const value = det;
+     console.log("value=",value);
+     console.log("typeof value=",typeof(value));
+     if (!value.isEmpty) {
+      data = value;
       var index: number = 0;
       data.findIndex(function (entry: any, i: number) {
         if (entry.pid == (pid)) {
@@ -58,7 +63,9 @@ export  function PatientDetails() {
   }
 
   function deletePatient(pid: string) {
-    deletePatientData(pid);
+    debugger;
+    const res=deletePatientData(pid);
+    
     Navigation("/");
   }
 
@@ -136,8 +143,8 @@ export  function PatientDetails() {
   // console.log("dat",dat);
   let det:any;
   const [input,setInput]=useState<Patients|any>();
-  fetchData()
-  async function fetchData(){
+  
+   async function fetchData(){
     debugger
     try{
       const response=await axios.get('http://localhost:9000/patient', {
@@ -150,6 +157,8 @@ export  function PatientDetails() {
       det=(response.data);
       console.log("dat",det);
       setInput(det);
+      console.log("inputdata=",input);
+      
       
     }
     catch(error){
