@@ -1,12 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import DataTable, { TableColumn } from 'react-data-table-component';
 import { Patients, PostsProps } from '../entities/Patients';
-import { deletePatientData, editPatientData } from '../Utils/functions';
+import { editPatientData } from '../Utils/functions';
 import { Button } from 'react-bootstrap';
 //import Button from 'react-bootstrap/Button';
 import { Route, useNavigate } from 'react-router-dom';
 import FormComponent from './formComponent';
 import axios from 'axios';
+import { log } from 'console';
+import { url } from 'inspector';
 
 const style = {
   position: 'relative',
@@ -64,11 +66,19 @@ export  function PatientDetails() {
 
   function deletePatient(pid: string) {
     debugger;
-    const res=deletePatientData(pid);
-    
+    deletePatientData(pid)
     Navigation("/");
+    
   }
-
+   async function deletePatientData(pid:string){
+    debugger;
+    const response= await axios.delete(`http://localhost:9000/patient/delete/${pid}`).then((res)=>{
+      console.log(res.status,"res token:",res.data);
+      console.log("res.header",); 
+    });
+    console.log("response",response);
+    fetchData();
+  }
 
 
 

@@ -19,37 +19,37 @@ export  function save(data: any){
   
 }
 
-export async function deletePatientData(pid:string){
-  debugger;
-  
-  const response= await axios.delete(`http://localhost:9000/patient/delete/:id${pid}`).then((res)=>{
-    console.log(res.status,"res token:",res.data);
+// export async function deletePatientData(pid:string){
+//   debugger;
+//   const Navigate=useNavigate();
+//   const response= await axios.delete(`http://localhost:9000/patient/delete/:id${pid}`).then((res)=>{
+//     console.log(res.status,"res token:",res.data);
     
-  });
-  console.log("response",response);
-  
-
-//   let data:any[];
-//   const value=localStorage.getItem('PatientDetails');
-//   //console.log(value);
-//   var index:number=0;
-//   if (typeof value === 'string') {
-//      data = JSON.parse(value) // ok
-//      console.log('dat',data)
-//      data.findIndex(function (entry:any, i:number) { 
-//       if (entry.pid == (pid)) { 
-//           index = i; 
-//           return true; 
-//       } 
 //   });
-//   console.log('type of data:',typeof(data));
+//   console.log("response",response);
+//   Navigate("/");
+
+// //   let data:any[];
+// //   const value=localStorage.getItem('PatientDetails');
+// //   //console.log(value);
+// //   var index:number=0;
+// //   if (typeof value === 'string') {
+// //      data = JSON.parse(value) // ok
+// //      console.log('dat',data)
+// //      data.findIndex(function (entry:any, i:number) { 
+// //       if (entry.pid == (pid)) { 
+// //           index = i; 
+// //           return true; 
+// //       } 
+// //   });
+// //   console.log('type of data:',typeof(data));
   
-//   var splcdData=data.splice(index,1);
-//   console.log('data after splice:',data);
-//   localStorage.setItem('PatientDetails', JSON.stringify(data));
+// //   var splcdData=data.splice(index,1);
+// //   console.log('data after splice:',data);
+// //   localStorage.setItem('PatientDetails', JSON.stringify(data));
   
+// // }
 // }
-}
 
 
 export async function editPatientData(data:Patients){
