@@ -121,11 +121,7 @@ const FormComponent = (props: any) => {
   }
 
   function editPatient() {
-    if (data.address != "" && data.fullname != null && data.mobile != null && data.refdoc != null) {
-      editPatientData(data);
-    }
-
-
+    editPatientData(data);
   }
 
   function registerPatient(): void {
@@ -204,7 +200,7 @@ const FormComponent = (props: any) => {
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="fullname">
                   <Form.Label>Name</Form.Label>
-                  <Form.Control type="text" placeholder="" name='fullname' pattern="^[a-zA-Z]{3,}" value={data.fullname} onChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
+                  <Form.Control type="text" placeholder="" name='fullname' pattern="^[a-zA-Z ]{3,}" value={data.fullname} onChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
                     setData({ ...data, fullname: event.target.value })
                   }} required={true} isInvalid={false} /><div className="invalid-feedback">
                     Please enter Name.

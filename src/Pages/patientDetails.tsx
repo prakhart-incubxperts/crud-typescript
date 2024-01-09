@@ -1,14 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import DataTable, { TableColumn } from 'react-data-table-component';
 import { Patients, PostsProps } from '../entities/Patients';
-import { editPatientData } from '../Utils/functions';
-import { Button } from 'react-bootstrap';
+import { deletePatientData, editPatientData, fetchData } from '../Utils/functions';
+import { Button, Dropdown } from 'react-bootstrap';
 //import Button from 'react-bootstrap/Button';
 import { Route, useNavigate } from 'react-router-dom';
 import FormComponent from './formComponent';
 import axios from 'axios';
-import { log } from 'console';
-import { url } from 'inspector';
+import { Input } from '@mui/material';
+
 
 const style = {
   position: 'relative',
@@ -25,29 +25,29 @@ const style = {
 
 
 
-export  function PatientDetails() {
-  
-  //debugger
-  const [isClicked,setIsClicked]=useState(false);
+export function PatientDetails() {
+
+
+  const [isClicked, setIsClicked] = useState(false);
   const [data, setData] = useState<Patients>({ pid: "", fullname: "", gender: "", dob: "", refdoc: "", address: "", country: "", state: "", mobile: "", email: "", note: "", image: "" });
   const Navigation = useNavigate();
-  let editedData: Patients;
   let oldpid: string, oldimage: string;
-  const [fetchedValue,setFetchedValue]=useState<Patients>(data);
+  const [fetchedValue, setFetchedValue] = useState<Patients>(data);
+  const [input, setInput] = useState<Patients | any>();
+  const [txt, setTxt]=useState('');
   useEffect(() => {
-    fetchData();
+    fetchingdata();
   }, []);
-  
+
   function edit(pid: string) {
-    
     debugger;
     oldpid = pid;
     console.log(' called from edit pid:', oldpid);
     let data: Patients[];
-     const value = det;
-     console.log("value=",value);
-     console.log("typeof value=",typeof(value));
-     if (!value.isEmpty) {
+    const value = det;
+    console.log("value=", value);
+    console.log("typeof value=", typeof (value));
+    if (!value.isEmpty) {
       data = value;
       var index: number = 0;
       data.findIndex(function (entry: any, i: number) {
@@ -56,31 +56,19 @@ export  function PatientDetails() {
           return true;
         }
       });
-       let fetchedValue =(Object.values(data)[index]);
-      
+      let fetchedValue = (Object.values(data)[index]);
       setFetchedValue(fetchedValue);
       setIsClicked(true);
     }
 
   }
 
-  function deletePatient(pid: string) {
-    debugger;
-    deletePatientData(pid)
+  async function deletePatient(pid: string) {
+   await deletePatientData(pid);
+    fetchingdata();
     Navigation("/");
-    
-  }
-   async function deletePatientData(pid:string){
-    debugger;
-    const response= await axios.delete(`http://localhost:9000/patient/delete/${pid}`).then((res)=>{
-      console.log(res.status,"res token:",res.data);
-      console.log("res.header",); 
-    });
-    console.log("response",response);
-    fetchData();
-  }
 
-
+  }
 
 
   const columns: TableColumn<Patients>[] = useMemo(() =>
@@ -88,10 +76,12 @@ export  function PatientDetails() {
       {
         name: 'Id',
         selector: row => row.pid,
+        
       },
       {
         name: 'Name',
         selector: row => row.fullname,
+        sortable: true,
       },
       {
         name: 'Gender',
@@ -104,6 +94,7 @@ export  function PatientDetails() {
       {
         name: 'Ref. Doctor',
         selector: row => row.refdoc,
+        sortable: true,
       },
       {
         name: 'Address',
@@ -131,7 +122,7 @@ export  function PatientDetails() {
       },
       {
         name: 'Action edit',
-        cell: row => <button className='btn btn-primary' onClick={() => edit(row.pid)}>edit</button>,
+        cell: row => <button className='btn btn-warning' onClick={() => edit(row.pid)}>edit</button>,
       },
       {
         name: 'Action delete',
@@ -142,63 +133,78 @@ export  function PatientDetails() {
     ],
     []
   );
-  
-  // let dat;
-  // const value = localStorage.getItem('PatientDetails');
-  // console.log("value:",value);
 
-  // if (typeof value === 'string') {
-  //   dat = JSON.parse(value) // ok 
-  // }
-  // console.log("dat",dat);
-  let det:any;
-  const [input,setInput]=useState<Patients|any>();
-  
-   async function fetchData(){
-    debugger
-    try{
-      const response=await axios.get('http://localhost:9000/patient', {
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS"
-          } })
-      console.log('response',response);
-      
-      det=(response.data);
-      console.log("dat",det);
-      setInput(det);
-      console.log("inputdata=",input);
-      
-      
-    }
-    catch(error){
-      console.log("Data not found");
-      console.log("error:",error);
-      
-      
-    }
-  }
-  
+  let det: any;
 
-  function handleRegister(){
+async function fetchingdata(){
+  debugger
+  const data=await fetchData();
+  console.log("fetched data:",data);
+  
+  det=data;
+  //const ascData = data.sort((a:any, b:any) => (a.fullname > b.fullname) ? 1 : -1);
+  setInput(data);
+  setData(data);
+}
+
+  function handleRegister() {
+    
     setFetchedValue(data);
     setIsClicked(true);
-    
   }
-  function handleCancel(){
+
+  function handleCancel() {
     setIsClicked(false);
-    
   }
-  return (
+  const propsToCheck = ['fullname', 'refdoc', 'email'];
+  function filterData(text:string){
+    console.log("text:",text);
     
-    <>
-    <Button variant="primary" className="btn-right" type="button"   onClick={handleRegister}>Register</Button>
+    if(text!=""){
+      console.log("input in if:",input);
+      const result=filterByValue(input,text)
+      console.log("filterdata:",result);
+      setInput(result);
+    }
+    else{
+      console.log("else block");
+      console.log("input in else:",input);
+      console.log("data in else",data);
       
+      setInput(data);
+    }
+  function filterByValue(array:any, string:string) {
+    return array.filter((o:any) =>
+        propsToCheck.some(k => String(o[k]).toLowerCase().includes(string.toLowerCase())
+        )
+    );
+}
+    
+   
+  }
+
+  return (
+
+    <>
+      <input className="col-md-3" type="search" placeholder="Search" aria-label="Search" onChange={((e)=>{filterData(e.target.value)})}></input>
+      {/* <Dropdown >
+      <Dropdown.Toggle variant="success" id="dropdown-basic">
+        Dropdown Button
+      </Dropdown.Toggle>
+      <Dropdown.Menu >
+        <Dropdown.Item eventKey={''}>Action</Dropdown.Item>
+        <Dropdown.Item eventKey={'asc'}>Ascending</Dropdown.Item>
+        <Dropdown.Item eventKey={'desc'}>Descending</Dropdown.Item>
+      </Dropdown.Menu>
+    </Dropdown> */}
+      <Button variant="primary" className="btn-right" type="button" onClick={handleRegister}>Register</Button>
+
       <DataTable
         columns={columns}
         data={input}
+        pagination
       />
-      {isClicked && <FormComponent open={isClicked} value={fetchedValue} cancel={handleCancel}/>}
+      {isClicked && <FormComponent open={isClicked} value={fetchedValue} cancel={handleCancel} />}
     </>
   )
 }

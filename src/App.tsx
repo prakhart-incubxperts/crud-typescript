@@ -1,5 +1,5 @@
 import { Route, BrowserRouter as Router, Routes, useNavigate } from 'react-router-dom';
-import './App.css';
+import './Asset/App.css';
 import { Routing } from './Routes/routes';
 import FormComponent from './Pages/formComponent';
 import { Modal } from 'react-bootstrap';
@@ -27,7 +27,7 @@ function App() {
             <ul className="navbar-nav ml-auto">
               <div>
                 <li className="nav-item">
-                  {/* <button className="btn-primary" onClick={handleClick}>Register</button> */}
+                  
                 </li>
               </div>&nbsp;
               <div>
@@ -42,20 +42,17 @@ function App() {
         </div>
       </nav>
       <div>
-        <main className="my-form" style={{ display: 'flex' }}>
-          <div className="container" style={{ display: '' }}>
+        <main className="my-form">
+          <div className="container">
             <div className="row justify-content-center">
-              <div className="col-md-8">
-                <div className="card" style={{ display: '' }}>
-                  {/* <div className="card-header"></div> */}
+              <div className="col-md-12">
+                <div className="card">
                   <div className="card-body">
-
                     <Router>
                       <Routes>
                          <Route path="/" element={<PatientDetails />}></Route>
                       </Routes>
                     </Router>
-
                   </div>
                 </div>
               </div>
