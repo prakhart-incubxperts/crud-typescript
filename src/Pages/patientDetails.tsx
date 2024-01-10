@@ -6,23 +6,6 @@ import { Button, Dropdown } from 'react-bootstrap';
 //import Button from 'react-bootstrap/Button';
 import { Route, useNavigate } from 'react-router-dom';
 import FormComponent from './formComponent';
-import axios from 'axios';
-import { Input } from '@mui/material';
-
-
-const style = {
-  position: 'relative',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 500,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  overflow: 'scroll',
-  height: '100%'
-};
-
 
 
 export function PatientDetails() {
@@ -34,7 +17,7 @@ export function PatientDetails() {
   let oldpid: string, oldimage: string;
   const [fetchedValue, setFetchedValue] = useState<Patients>(data);
   const [input, setInput] = useState<Patients | any>();
-  const [txt, setTxt]=useState('');
+  const [txt, setTxt] = useState('');
   useEffect(() => {
     fetchingdata();
   }, []);
@@ -42,11 +25,8 @@ export function PatientDetails() {
   function edit(pid: string) {
     debugger;
     oldpid = pid;
-    console.log(' called from edit pid:', oldpid);
     let data: Patients[];
     const value = det;
-    console.log("value=", value);
-    console.log("typeof value=", typeof (value));
     if (!value.isEmpty) {
       data = value;
       var index: number = 0;
@@ -64,7 +44,7 @@ export function PatientDetails() {
   }
 
   async function deletePatient(pid: string) {
-   await deletePatientData(pid);
+    await deletePatientData(pid);
     fetchingdata();
     Navigation("/");
 
@@ -76,7 +56,7 @@ export function PatientDetails() {
       {
         name: 'Id',
         selector: row => row.pid,
-        
+
       },
       {
         name: 'Name',
@@ -136,19 +116,15 @@ export function PatientDetails() {
 
   let det: any;
 
-async function fetchingdata(){
-  debugger
-  const data=await fetchData();
-  console.log("fetched data:",data);
-  
-  det=data;
-  //const ascData = data.sort((a:any, b:any) => (a.fullname > b.fullname) ? 1 : -1);
-  setInput(data);
-  setData(data);
-}
+  async function fetchingdata() {
+    debugger
+    const data = await fetchData();
+    det = data;
+    setInput(data);
+    setData(data);
+  }
 
   function handleRegister() {
-    
     setFetchedValue(data);
     setIsClicked(true);
   }
@@ -157,46 +133,27 @@ async function fetchingdata(){
     setIsClicked(false);
   }
   const propsToCheck = ['fullname', 'refdoc', 'email'];
-  function filterData(text:string){
-    console.log("text:",text);
-    
-    if(text!=""){
-      console.log("input in if:",input);
-      const result=filterByValue(input,text)
-      console.log("filterdata:",result);
+  function filterData(text: string) {
+    if (text != "") {
+      const result = filterByValue(input, text)
       setInput(result);
     }
-    else{
-      console.log("else block");
-      console.log("input in else:",input);
-      console.log("data in else",data);
-      
+    else {
       setInput(data);
     }
-  function filterByValue(array:any, string:string) {
-    return array.filter((o:any) =>
+    function filterByValue(array: any, string: string) {
+      return array.filter((o: any) =>
         propsToCheck.some(k => String(o[k]).toLowerCase().includes(string.toLowerCase())
         )
-    );
-}
-    
-   
+      );
+    }
   }
+  
 
   return (
 
     <>
-      <input className="col-md-3" type="search" placeholder="Search" aria-label="Search" onChange={((e)=>{filterData(e.target.value)})}></input>
-      {/* <Dropdown >
-      <Dropdown.Toggle variant="success" id="dropdown-basic">
-        Dropdown Button
-      </Dropdown.Toggle>
-      <Dropdown.Menu >
-        <Dropdown.Item eventKey={''}>Action</Dropdown.Item>
-        <Dropdown.Item eventKey={'asc'}>Ascending</Dropdown.Item>
-        <Dropdown.Item eventKey={'desc'}>Descending</Dropdown.Item>
-      </Dropdown.Menu>
-    </Dropdown> */}
+      <input className="col-md-3" type="search" placeholder="Search" aria-label="Search" onChange={((e) => { filterData(e.target.value) })}></input>
       <Button variant="primary" className="btn-right" type="button" onClick={handleRegister}>Register</Button>
 
       <DataTable

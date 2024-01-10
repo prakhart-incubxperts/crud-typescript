@@ -4,6 +4,6 @@
     border-style:'solid';
     float:'right';
 }
-input[type='file'] {
+input[type='image'] {
     color: transparent;
   }

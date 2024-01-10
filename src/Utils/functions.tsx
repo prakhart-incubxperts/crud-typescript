@@ -17,40 +17,40 @@ export async function fetchData() {
         "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS"
       }
     })
-    console.log('response', response);
-    console.log("response.data",response.data);
     return response.data;
   }
   catch (error) {
-    console.log("Data not found");
     console.log("error:", error);
   }
 }
 
-export  function save(data: any){
+export async function save(data: any){
   debugger
-    console.log('data:',data);
-    const response= axios.post(`${url}/patient/add`,data)
+    const response= await axios.post(`${url}/patient/add`,data)
     .then((res) => {
-      console.log(res.status, res.data.token);
+      console.log(res.status,);
+      return res.status
     });
+
+    return response;
 }
 
 export async function editPatientData(data:Patients){
   debugger;
   const response = await axios.put(`${url}/patient/:id`,(data)).then((res) => {
-    console.log(res.status, res.data.token);
+    console.log(res.status);
+    return res.status;
   });
-  console.log("response",response)
+
+  return response;
 }
 
 export async function deletePatientData(pid: string) {
   debugger;
   const response = await axios.delete(`${url}/patient/delete/${pid}`).then((res) => {
-    console.log(res.status, "res token:", res.data);
-    console.log("res.header",);
+    return res.status
   });
-  console.log("response", response);
 
+  return response;
 }
 

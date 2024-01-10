@@ -5,18 +5,23 @@ import FormComponent from './Pages/formComponent';
 import { Modal } from 'react-bootstrap';
 import { useState } from 'react';
 import { PatientDetails } from './Pages/patientDetails';
+import { ToastContainer,toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+let onload=true;
 
 function App() {
-
-
-  const [isClicked, SetIsClicked] = useState<boolean>(false);
-
-  function handleClick() {
-
-    SetIsClicked(!isClicked);
+  
+  
+  if(onload){
+    success();
+    onload=false;
   }
+  const [isClicked, SetIsClicked] = useState<boolean>(false);
+  
   return (
+    
     <div className="App">
+    <ToastContainer/>
       <nav className="navbar navbar-expand-lg navbar-light navbar-laravel">
         <div className="container">
           <a className="navbar-brand" href="">
@@ -36,8 +41,6 @@ function App() {
                 </li>
               </div>
             </ul>
-
-
           </div>
         </div>
       </nav>
@@ -60,13 +63,12 @@ function App() {
           </div>
         </main>
       </div>
-
     </div>
   );
 }
 
 export default App;
-function handleDisplay() {
-  throw new Error('Function not implemented.');
+function success(){
+  toast.success('Welcome...',{position: toast.POSITION.TOP_CENTER});
 }
 

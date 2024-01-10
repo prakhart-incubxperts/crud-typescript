@@ -15,22 +15,11 @@ import { Patients } from "../entities/Patients";
 import { editPatientData, save } from "../Utils/functions";
 import countries from '../entities/countryState.json';
 import states from '../entities/state.json';
-import imageToBase64 from "image-to-base64";
-
+import { toast } from "react-toastify";
 let style = {
-  position: 'relative',
-  top: '50%',
-  left: '50%',
-  margin: '5px',
-  marginBottom: '5px',
-  transform: 'translate(-50%, -50%)',
-  width: 600,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4,
-  height: '100%',
+  position: 'relative',top: '50%',left: '50%',margin: '5px',marginBottom: '5px',transform: 'translate(-50%, -50%)',width: 600,bgcolor: 'background.paper',border: '2px solid #000',boxShadow: 24,p: 4,height: '100%',
 };
+
 
 const FormComponent = (props: any) => {
   const [data, setData] = useState<Patients>(props.value);
@@ -65,28 +54,31 @@ const FormComponent = (props: any) => {
   }
 
 
-
+  console.log("countries:",countries);
+  
   let ctryname = countries.map((item, key) => <option key={key} value={item.country}>{item.country}</option>)
+  
   let countryFilter = countries.filter(function (value) {
+    console.log("data.country:",data.country);
     return value.country === data.country;
   }).map(function (value) {
+    console.log("value.cid",value.cid);
     return value.cid;
   })
-  console.log("countryfilter", countryFilter);
+  
 
   let statefilter = states.filter(function (value) {
     return value.cid == countryFilter[0];
   }).map((value, key) => <option key={key} value={value.state}>{value.state}</option>)
-  console.log("statefilter", statefilter);
+  
 
 
   function handleCountry(e: any) {
-    setData({ ...data, country: e.target.value });
+    setData({...data, country: e.target.value });
   }
 
   function handleStateChange(e: any) {
-    debugger
-    setData({ ...data, state: e.target.value });
+    setData({...data, state: e.target.value });
   }
 
   const getData = () => {
@@ -107,24 +99,22 @@ const FormComponent = (props: any) => {
       let stringCheck = data.email;
       let myregex = new RegExp("[a-z0-9._%+\-]+@[a-z]+\.[a-z]{2,}$");
       let result = stringCheck.match(myregex);
-      console.log(result);
-
       if (data.address != "" && data.fullname != "" && data.mobile != "" && data.mobile.length == 10 && data.email != "" && result && data.gender != "" && data.dob != "") {
         editPatient();
       }
-
     }
     else {
       registerPatient();
-
     }
   }
 
   function editPatient() {
     editPatientData(data);
+    info();
   }
 
-  function registerPatient(): void {
+   async function registerPatient() {
+    
     debugger;
     let id: string = nanoid();
     setData({ ...data, pid: id });
@@ -133,9 +123,18 @@ const FormComponent = (props: any) => {
     const isMobileValid = phone(data.mobile, { country: 'IN' });
     if (data.fullname != null && data.gender != null && data.dob != null && data.email != null && isEmailValid && isMobileValid.isValid) {
       if (isNameValid) {
-        const res = save({ ...data, pid: id });
-        alert('Data saved successfully...');
-        console.log(res)
+        const response = await save({ ...data, pid: id }).then((res) => {
+          debugger
+          return res;
+        });
+        console.log("response:",response);
+        if(response==200){
+          alert('Data saved successfully...');
+          success();
+        }
+        else {
+          alert('Something went wrong');
+        }
       }
       else {
         alert('Enter valid Name');
@@ -145,14 +144,18 @@ const FormComponent = (props: any) => {
     }
     else {
       alert('Either field is empty or not in proper format');
+      fail();
       setData(data);
       setOpen(props.open);
     }
   }
+  
 
 
   const convertToBase64 = (event: any) => {
-    const file = event.target.files[0];
+    debugger
+    if(event.target.value!= undefined && event.target.files[0].type.split("/")[0] === "image"){
+      const file = event.target.files[0];
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => {
@@ -161,12 +164,14 @@ const FormComponent = (props: any) => {
     reader.onerror = (error) => {
       console.log('Error: ', error);
     };
+    }
+    
   };
 
 
   return (
     <div>
-
+    
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
@@ -191,11 +196,13 @@ const FormComponent = (props: any) => {
                   <div className="imageBox" >
                     <img src={data.image} style={{ height: '120px', width: '120px' }} />
                   </div>
-                  <div>
-                    <input type='file' id='image' onChange={convertToBase64}>
+                  <div >
+                    <input type='file' id='image' accept=".png, .jpg, .jpeg"  onChange={convertToBase64}>
                     </input>
-
                   </div>
+                  <div className="invalid-feedback">
+                      Please enter image only 
+                    </div>
 
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="fullname">
@@ -232,7 +239,7 @@ const FormComponent = (props: any) => {
                   <Form.Select aria-label="Default select example" className="form-control" value={data.refdoc} onChange={(event: React.ChangeEvent<HTMLSelectElement>): void => {
                     setData({ ...data, refdoc: event.target.value })
                   }} required={true} isInvalid={false}>
-                    <option value="" disabled>Select Doctor</option>
+                    <option value="" >Select Doctor</option>
                     <option>Dr.1</option>
                     <option>Dr.2</option>
                   </Form.Select>
@@ -249,8 +256,8 @@ const FormComponent = (props: any) => {
                 <Form.Group className="mb-3" controlId="country">
                   <Form.Label>Country :</Form.Label>
 
-                  <select className="form-control" value={data.country} onChange={handleCountry}><option value={""} disabled>select country...</option>
-                    {ctryname}</select>
+                  <select className="form-control" value={data.country} onChange={handleCountry}>
+                    <option value={""} >select country...</option>{ctryname}</select>
 
                   <div className="invalid-feedback">
                     Please select Country.
@@ -258,7 +265,8 @@ const FormComponent = (props: any) => {
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="state">
                   <Form.Label>State</Form.Label>
-                  <select className="form-control" value={data.state} onChange={handleStateChange}><option value={""} disabled>select state...</option>{statefilter}</select>
+                  <select className="form-control" value={data.state} onChange={handleStateChange} required={true}><option >select state...</option>
+                  {statefilter}</select>
 
                   <div className="invalid-feedback">
                     Please select State.
@@ -282,13 +290,13 @@ const FormComponent = (props: any) => {
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="note">
                   <Form.Label>Note</Form.Label>
-                  <Form.Control type="text" placeholder="" value={data.note} onChange={(event: React.ChangeEvent<HTMLTextAreaElement>): void => {
+                  <Form.Control type="text" placeholder=" " value={data.note} onChange={(event: React.ChangeEvent<HTMLTextAreaElement>): void => {
                     setData({ ...data, note: event.target.value })
                   }} />
                 </Form.Group>
               </Form.Group>
               <Form.Group controlId="button">
-                <Button variant="primary" className="btn-left" type="submit" onClick={handleClick}>
+                <Button variant="primary" className="btn-left" href="/" type="submit" onClick={handleClick}>
                   Submit
                 </Button>
                 <Button variant="danger" className="btn-right" type="submit" onClick={handleCancel}>
@@ -304,6 +312,14 @@ const FormComponent = (props: any) => {
 }
 export default FormComponent;
 
-
+function success(){
+  toast.success('Data added successfully...',{position: toast.POSITION.TOP_RIGHT});
+}
+function info(){
+  toast.info('Data changed...',{position: toast.POSITION.TOP_CENTER});
+}
+function fail(){
+  toast.error('Something went wrong...',{position: toast.POSITION.TOP_CENTER})
+}
 
 

@@ -28,6 +28,7 @@
     "react-mobile-validator": "^1.1.1",
     "react-router-dom": "^6.21.0",
     "react-scripts": "5.0.1",
+    "react-toastify": "^9.1.3",
     "string-format-validation": "^2.0.2",
     "typescript": "^4.9.5",
     "validator": "^13.11.0",
