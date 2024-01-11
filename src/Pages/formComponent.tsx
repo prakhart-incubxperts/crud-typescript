@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from "react";
+import React, { FC, isValidElement, useCallback, useEffect } from "react";
 import { useState } from "react";
 import { Form } from "react-bootstrap";
 import Button from 'react-bootstrap/Button';
@@ -12,10 +12,14 @@ import { NameValidator } from "clean-name-validator";
 import { phone } from 'phone';
 import '../Asset/modal.css';
 import { Patients } from "../entities/Patients";
-import { editPatientData, save } from "../Utils/functions";
+import { editPatientData, fetchData, save } from "../Utils/functions";
 import countries from '../entities/countryState.json';
 import states from '../entities/state.json';
 import { toast } from "react-toastify";
+import { useHref, useNavigate,useNavigation } from "react-router-dom";
+import { PatientDetails } from "./patientDetails";
+
+
 let style = {
   position: 'relative',top: '50%',left: '50%',margin: '5px',marginBottom: '5px',transform: 'translate(-50%, -50%)',width: 600,bgcolor: 'background.paper',border: '2px solid #000',boxShadow: 24,p: 4,height: '100%',
 };
@@ -24,7 +28,8 @@ let style = {
 const FormComponent = (props: any) => {
   const [data, setData] = useState<Patients>(props.value);
   const [open, setOpen] = useState(props.open);
-  const handleOpen = () => { setOpen(true); }
+  const handleOpen = () => { setOpen(true); };
+  const Navigate=useNavigate();
 
   useEffect(() => {
     setOpen(props.open)
@@ -47,6 +52,16 @@ const FormComponent = (props: any) => {
   }
   else {
     maxDate = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + (d.getDate());
+  }
+
+  function success(){
+    toast.success('Data added successfully...',{position: toast.POSITION.TOP_RIGHT});
+  }
+  function info(){
+    toast.info('Data changed...',{position: toast.POSITION.TOP_CENTER});
+  }
+  function fail(){
+    toast.error('Something went wrong...',{position: toast.POSITION.TOP_CENTER})
   }
 
   function handleCancel() {
@@ -83,7 +98,7 @@ const FormComponent = (props: any) => {
 
   const getData = () => {
     if (props != null) {
-      setData({ pid: props.value.pid, fullname: props.value.fullname, gender: props.value.gender, dob: props.value.dob, refdoc: props.value.refdoc, address: props.value.address, country: props.value.country, state: props.value.state, mobile: props.value.mobile, email: props.value.email, note: props.value.note, image: props.value.image })
+      setData(props.value)
     }
   }
 
@@ -93,7 +108,7 @@ const FormComponent = (props: any) => {
 
 
 
-  const handleClick = () => {
+  const handleClick = async () => {
     debugger
     if (props.value.pid != "" && props.value.pid != undefined) {
       let stringCheck = data.email;
@@ -104,13 +119,16 @@ const FormComponent = (props: any) => {
       }
     }
     else {
-      registerPatient();
+       registerPatient();
     }
   }
 
-  function editPatient() {
-    editPatientData(data);
+  async function editPatient() {
+    await editPatientData(data);
     info();
+    props.childFunction();
+    handleClose();
+    
   }
 
    async function registerPatient() {
@@ -121,20 +139,23 @@ const FormComponent = (props: any) => {
     const isNameValid: boolean = NameValidator.validate(data.fullname);
     let isEmailValid: boolean = EmailValidator.validate(data.email);
     const isMobileValid = phone(data.mobile, { country: 'IN' });
-    if (data.fullname != null && data.gender != null && data.dob != null && data.email != null && isEmailValid && isMobileValid.isValid) {
+    
+    if (data.fullname != null && data.gender != null && data.dob != null && data.country != null && data.state!=null && isEmailValid && isMobileValid.isValid) {
       if (isNameValid) {
-        const response = await save({ ...data, pid: id }).then((res) => {
+         await save({ ...data, pid: id }).then((res) => {
           debugger
-          return res;
+         
+          if(res.status==200){
+            alert('Data saved successfully...');
+            success();
+            handleClose();
+            props.childFunction();
+          }
+          else {
+            alert('Something went wrong');
+          }
         });
-        console.log("response:",response);
-        if(response==200){
-          alert('Data saved successfully...');
-          success();
-        }
-        else {
-          alert('Something went wrong');
-        }
+        
       }
       else {
         alert('Enter valid Name');
@@ -143,10 +164,10 @@ const FormComponent = (props: any) => {
       }
     }
     else {
-      alert('Either field is empty or not in proper format');
-      fail();
+      if(data.fullname==""?alert(`Enter valid fullname`):data.gender==null?alert(`Enter valid gender`):data.dob== null? alert(`Enter valid dob`):data.refdoc==null?alert(`Enter valid refdoc`):data.address==null?alert(`Enter valid address`):data.country==null?alert(`Enter valid country`):data.state==null?alert(`Enter valid state`):data.mobile==null?alert(`Enter valid mobile`):data.email==null?alert(`Enter valid email`):"")
       setData(data);
-      setOpen(props.open);
+      handleOpen();
+      //setOpen(props.open);
     }
   }
   
@@ -154,17 +175,25 @@ const FormComponent = (props: any) => {
 
   const convertToBase64 = (event: any) => {
     debugger
-    if(event.target.value!= undefined && event.target.files[0].type.split("/")[0] === "image"){
-      const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      setData({ ...data, image: reader.result as string });
-    };
-    reader.onerror = (error) => {
-      console.log('Error: ', error);
-    };
+    console.log("event:",event.target);
+    
+    if(event!=null){
+      if(event.target.value!= "" && event.target.files[0].type.split("/")[0] === "image"){
+        const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        setData({ ...data, image: reader.result as string });
+      };
+      reader.onerror = (error) => {
+        console.log('Error: ', error);
+      };
+      }
+      else{
+        setData({...data,image:""})
+      }
     }
+    
     
   };
 
@@ -176,7 +205,7 @@ const FormComponent = (props: any) => {
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
         open={open}
-        onClose={handleClose}
+        // onClose={handleClose}
         closeAfterTransition
         slots={{ backdrop: Backdrop }}
         slotProps={{
@@ -296,7 +325,7 @@ const FormComponent = (props: any) => {
                 </Form.Group>
               </Form.Group>
               <Form.Group controlId="button">
-                <Button variant="primary" className="btn-left" href="/" type="submit" onClick={handleClick}>
+                <Button variant="primary" className="btn-left" type="button" onClick={handleClick}>
                   Submit
                 </Button>
                 <Button variant="danger" className="btn-right" type="submit" onClick={handleCancel}>
@@ -312,14 +341,6 @@ const FormComponent = (props: any) => {
 }
 export default FormComponent;
 
-function success(){
-  toast.success('Data added successfully...',{position: toast.POSITION.TOP_RIGHT});
-}
-function info(){
-  toast.info('Data changed...',{position: toast.POSITION.TOP_CENTER});
-}
-function fail(){
-  toast.error('Something went wrong...',{position: toast.POSITION.TOP_CENTER})
-}
+
 
 

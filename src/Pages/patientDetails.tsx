@@ -4,7 +4,7 @@ import { Patients, PostsProps } from '../entities/Patients';
 import { deletePatientData, editPatientData, fetchData } from '../Utils/functions';
 import { Button, Dropdown } from 'react-bootstrap';
 //import Button from 'react-bootstrap/Button';
-import { Route, useNavigate } from 'react-router-dom';
+import { Navigation, Route, useNavigate } from 'react-router-dom';
 import FormComponent from './formComponent';
 
 
@@ -13,20 +13,21 @@ export function PatientDetails() {
 
   const [isClicked, setIsClicked] = useState(false);
   const [data, setData] = useState<Patients>({ pid: "", fullname: "", gender: "", dob: "", refdoc: "", address: "", country: "", state: "", mobile: "", email: "", note: "", image: "" });
-  const Navigation = useNavigate();
   let oldpid: string, oldimage: string;
   const [fetchedValue, setFetchedValue] = useState<Patients>(data);
   const [input, setInput] = useState<Patients | any>();
   const [txt, setTxt] = useState('');
+  const Navigation =useNavigate();
   useEffect(() => {
     fetchingdata();
   }, []);
 
-  function edit(pid: string) {
+  async function edit(pid: string) {
     debugger;
+   const detail=await fetchData()
     oldpid = pid;
     let data: Patients[];
-    const value = det;
+    const value = detail;
     if (!value.isEmpty) {
       data = value;
       var index: number = 0;
@@ -43,11 +44,19 @@ export function PatientDetails() {
 
   }
 
-  async function deletePatient(pid: string) {
-    await deletePatientData(pid);
-    fetchingdata();
-    Navigation("/");
+  let det: any;
+   async function fetchingdata() {
+    debugger
+    const data = await fetchData();
+    setInput(data);
+    setData(data);
+    det = data;
+   }
 
+    async function deletePatient(pid: string) {
+     await deletePatientData(pid);
+
+     await fetchingdata();
   }
 
 
@@ -102,26 +111,23 @@ export function PatientDetails() {
       },
       {
         name: 'Action edit',
-        cell: row => <button className='btn btn-warning' onClick={() => edit(row.pid)}>edit</button>,
+        cell: row => <button className='btn btn-warning' onClick={() => edit(row.pid)}>edit</button>
       },
       {
         name: 'Action delete',
         cell: row => {
-          return <button className='btn btn-danger' onClick={() => deletePatient(row.pid)}>delete</button>
+          return <button className='btn btn-danger'  onClick={() => deletePatient(row.pid)}>delete</button>
         }
       },
     ],
     []
   );
 
-  let det: any;
 
-  async function fetchingdata() {
-    debugger
-    const data = await fetchData();
-    det = data;
-    setInput(data);
-    setData(data);
+  
+  
+   async function funcCall(){
+    await fetchingdata();
   }
 
   function handleRegister() {
@@ -160,8 +166,9 @@ export function PatientDetails() {
         columns={columns}
         data={input}
         pagination
+        responsive
       />
-      {isClicked && <FormComponent open={isClicked} value={fetchedValue} cancel={handleCancel} />}
+      {isClicked && <FormComponent open={isClicked} childFunction={funcCall} value={fetchedValue} cancel={handleCancel} />}
     </>
   )
 }

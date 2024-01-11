@@ -1,8 +1,5 @@
 import { Route, BrowserRouter as Router, Routes, useNavigate } from 'react-router-dom';
 import './Asset/App.css';
-import { Routing } from './Routes/routes';
-import FormComponent from './Pages/formComponent';
-import { Modal } from 'react-bootstrap';
 import { useState } from 'react';
 import { PatientDetails } from './Pages/patientDetails';
 import { ToastContainer,toast } from "react-toastify";
