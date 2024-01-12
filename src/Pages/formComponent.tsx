@@ -18,6 +18,7 @@ import states from '../entities/state.json';
 import { toast } from "react-toastify";
 import { useHref, useNavigate,useNavigation } from "react-router-dom";
 import { PatientDetails } from "./patientDetails";
+import { Hidden } from "@mui/material";
 
 
 let style = {
@@ -30,7 +31,8 @@ const FormComponent = (props: any) => {
   const [open, setOpen] = useState(props.open);
   const handleOpen = () => { setOpen(true); };
   const Navigate=useNavigate();
-
+  const [validated, setValidated] = useState(false);
+  const [val, setVal]=useState(true);
   useEffect(() => {
     setOpen(props.open)
   }, [props.open])
@@ -93,6 +95,8 @@ const FormComponent = (props: any) => {
   }
 
   function handleStateChange(e: any) {
+    console.log("selected state:",e.target.value);
+    
     setData({...data, state: e.target.value });
   }
 
@@ -108,13 +112,22 @@ const FormComponent = (props: any) => {
 
 
 
-  const handleClick = async () => {
+  const handleClick = async (event:any) => {
     debugger
+    
     if (props.value.pid != "" && props.value.pid != undefined) {
       let stringCheck = data.email;
       let myregex = new RegExp("[a-z0-9._%+\-]+@[a-z]+\.[a-z]{2,}$");
       let result = stringCheck.match(myregex);
-      if (data.address != "" && data.fullname != "" && data.mobile != "" && data.mobile.length == 10 && data.email != "" && result && data.gender != "" && data.dob != "") {
+      if (data.address != "" && data.fullname != "" && data.mobile.length == 10 && data.email != "" && result && data.gender != "" && data.dob != "") {
+       console.log(Form.Check);
+        const form=event.currentTarget;
+        console.log(form.checkValidity());
+        
+        if(form.checkValidity()==false){
+
+        }
+        else
         editPatient();
       }
     }
@@ -164,12 +177,43 @@ const FormComponent = (props: any) => {
       }
     }
     else {
-      if(data.fullname==""?alert(`Enter valid fullname`):data.gender==null?alert(`Enter valid gender`):data.dob== null? alert(`Enter valid dob`):data.refdoc==null?alert(`Enter valid refdoc`):data.address==null?alert(`Enter valid address`):data.country==null?alert(`Enter valid country`):data.state==null?alert(`Enter valid state`):data.mobile==null?alert(`Enter valid mobile`):data.email==null?alert(`Enter valid email`):"")
+      if(data.fullname==null?alert(`Enter valid fullname`):data.gender==null?alert(`Enter valid gender`):data.dob== null? alert(`Enter valid dob`):data.refdoc==null?alert(`Enter valid refdoc`):data.address==null?alert(`Enter valid address`):data.country==null?alert(`Enter valid country`):data.state==null?alert(`Enter valid state`):data.mobile==null?alert(`Enter valid mobile`):data.email==null?alert(`Enter valid email`):"")
       setData(data);
       handleOpen();
       //setOpen(props.open);
     }
   }
+  
+  function onChangeEvent(e:any){
+    console.log("e.traget.name:",e.target.name);
+    console.log("e.traget.value:",e.target.value);
+    
+    setData({...data,[e.target.name]:e.target.value});
+    return(<Form.Control.Feedback type="invalid">
+    Please enter {`${e.target.name}`}.
+  </Form.Control.Feedback>)
+    setVal(true);
+  }
+
+  const handleSubmit=(e:any)=>{
+    debugger
+    console.log("event type:",e);
+    
+    const form = e.currentTarget;
+    console.log("form.checkvalidity()",form.checkValidity());
+    
+    if (form.checkValidity() === false) {
+      e.preventDefault();
+      e.stopPropagation();
+      handleOpen();
+    }
+    else{
+      setValidated(true);
+      handleClick(e);
+    }
+
+    
+    }
   
 
 
@@ -197,7 +241,7 @@ const FormComponent = (props: any) => {
     
   };
 
-
+let msg:any;
   return (
     <div>
     
@@ -218,7 +262,7 @@ const FormComponent = (props: any) => {
         <Fade in={open}>
           <Box sx={style}>
             <h6>Form</h6>
-            <Form className="was-validated">
+            <Form className="was-validated" validated={validated} >
               <Form.Group className="modal-body">
                 <Form.Group className="mb-3" controlId="image">
                   <Form.Label>Image</Form.Label>
@@ -236,96 +280,76 @@ const FormComponent = (props: any) => {
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="fullname">
                   <Form.Label>Name</Form.Label>
-                  <Form.Control type="text" placeholder="" name='fullname' pattern="^[a-zA-Z ]{3,}" value={data.fullname} onChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
-                    setData({ ...data, fullname: event.target.value })
-                  }} required={true} isInvalid={false} /><div className="invalid-feedback">
+                  <Form.Control type="text" placeholder=" " name='fullname' pattern="^[a-zA-Z ]{3,}" value={data.fullname} onChange={msg=onChangeEvent} 
+                  required={true} isInvalid={false}/>
+                  {msg}
+                  {/* <Form.Control.Feedback type="invalid" hidden>
+              Please enter name.
+            </Form.Control.Feedback> */}
+                  {/* <div className="invalid-feedback">
                     Please enter Name.
-                  </div>
+                  </div> */}
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="gender">
                   <Form.Label>Gender: </Form.Label>
-                  <Form.Select aria-label="Default select example" className="form-control" value={data.gender} onChange={(event: React.ChangeEvent<HTMLSelectElement>): void => {
-                    setData({ ...data, gender: event.target.value })
-                  }} required={true} isInvalid={false}><div className="invalid-feedback">
+                  <Form.Select aria-label="Default select example" name="gender" className="form-control" value={data.gender} onChange={onChangeEvent}
+                  required={true} isInvalid={false}><div className="invalid-feedback" >
                       Please enter Gender.
                     </div>
                     <option value="">Gender</option>
                     <option >Male</option>
                     <option >Female</option>
                   </Form.Select>
-                  <div className="invalid-feedback">
-                    Please select Gender.
-                  </div>
+                  
                 </Form.Group>
                 <Form.Group className="mb-3" >
                   <Form.Label>DOB</Form.Label>
-                  <Form.Control type="date" className="form-control" id="date-inp" placeholder="" max={maxDate} name='dob' value={data.dob} onChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
-                    setData({ ...data, dob: event.target.value })
-                  }} required={true} isInvalid={false} /> <div className="invalid-feedback">Please enter Date of Birth.</div>
+                  <Form.Control type="date" className="form-control" id="date-inp" placeholder="" max={maxDate} name='dob' value={data.dob} onChange={onChangeEvent} required={true} isInvalid={false} />
+                  <div className="invalid-feedback">Please enter Date of Birth.</div>
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="refdoc">
                   <Form.Label>Ref. Doctor :</Form.Label>
-                  <Form.Select aria-label="Default select example" className="form-control" value={data.refdoc} onChange={(event: React.ChangeEvent<HTMLSelectElement>): void => {
-                    setData({ ...data, refdoc: event.target.value })
-                  }} required={true} isInvalid={false}>
+                  <Form.Select aria-label="Default select example" name="refdoc" className="form-control" value={data.refdoc} onChange={onChangeEvent} required={true} isInvalid={false}>
                     <option value="" >Select Doctor</option>
                     <option>Dr.1</option>
                     <option>Dr.2</option>
                   </Form.Select>
-                  <div className="invalid-feedback">
-                    Please select Doctor.
-                  </div>
+                  
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="address">
                   <Form.Label>Address</Form.Label>
-                  <Form.Control type="text" placeholder="" name='address' value={data.address} onChange={(event: React.ChangeEvent<HTMLTextAreaElement>): void => {
-                    setData({ ...data, address: event.target.value })
-                  }} required={true} isInvalid={false} />
+                  <Form.Control type="text" placeholder="" name='address' value={data.address} onChange={onChangeEvent} required={true} isInvalid={false} />
                 </Form.Group>
-                <Form.Group className="mb-3" controlId="country">
-                  <Form.Label>Country :</Form.Label>
+                <Form.Group className="mb-3" controlId="country" >
+                  <Form.Label >Country :</Form.Label>
 
-                  <select className="form-control" value={data.country} onChange={handleCountry}>
-                    <option value={""} >select country...</option>{ctryname}</select>
+                  <Form.Select aria-label="Default select example" className="form-control" value={data.country} required={true} isInvalid={false}  onChange={handleCountry}>
+                    <option value="" >select country...</option>{ctryname}</Form.Select>
 
-                  <div className="invalid-feedback">
-                    Please select Country.
-                  </div>
+                  
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="state">
                   <Form.Label>State</Form.Label>
-                  <select className="form-control" value={data.state} onChange={handleStateChange} required={true}><option >select state...</option>
-                  {statefilter}</select>
+                  <Form.Select className="form-control" value={data.state} onChange={handleStateChange} required={true}><option value="">select state...</option>
+                  {statefilter}</Form.Select>
 
-                  <div className="invalid-feedback">
-                    Please select State.
-                  </div>
+                  
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="mobile">
                   <Form.Label>Mobile</Form.Label>
-                  <Form.Control type="text" placeholder="" minLength={10} pattern="[0-9]{10}" value={data.mobile} onChange={(event: React.ChangeEvent<HTMLTextAreaElement>): void => {
-                    setData({ ...data, mobile: event.target.value })
-                  }} required={true} isInvalid={false} /><div className="invalid-feedback">
-                    Please enter Mobile.
-                  </div>
+                  <Form.Control type="text" placeholder="" minLength={10} pattern="[0-9]{10}" name="mobile" value={data.mobile} onChange={onChangeEvent} required={true} isInvalid={false} />
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="email">
                   <Form.Label>Email</Form.Label>
-                  <Form.Control type="email" placeholder="" pattern="[a-z0-9._%+\-]+@[a-z]+\.[a-z]{2,}$" value={data.email} onChange={(event: React.ChangeEvent<HTMLTextAreaElement>): void => {
-                    setData({ ...data, email: event.target.value })
-                  }} required={true} isInvalid={false} /><div className="invalid-feedback">
-                    Please enter Email.
-                  </div>
+                  <Form.Control type="email" placeholder="" pattern="[a-z0-9._%+\-]+@[a-z]+\.[a-z]{2,}$" name="email" value={data.email} onChange={onChangeEvent} required={true} isInvalid={false} />
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="note">
                   <Form.Label>Note</Form.Label>
-                  <Form.Control type="text" placeholder=" " value={data.note} onChange={(event: React.ChangeEvent<HTMLTextAreaElement>): void => {
-                    setData({ ...data, note: event.target.value })
-                  }} />
+                  <Form.Control type="text" placeholder=" " value={data.note} name="note" onChange={onChangeEvent} />
                 </Form.Group>
               </Form.Group>
               <Form.Group controlId="button">
-                <Button variant="primary" className="btn-left" type="button" onClick={handleClick}>
+                <Button variant="primary" className="btn-left" type="submit" onClick={handleSubmit}>
                   Submit
                 </Button>
                 <Button variant="danger" className="btn-right" type="submit" onClick={handleCancel}>
