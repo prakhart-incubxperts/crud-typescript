@@ -27,12 +27,14 @@ let style = {
 
 
 const FormComponent = (props: any) => {
-  const [data, setData] = useState<Patients>(props.value);
-  const [open, setOpen] = useState(props.open);
+  const [data, setData] = useState<Patients>(props?.value);
+  const [open, setOpen] = useState(props?.open);
   const handleOpen = () => { setOpen(true); };
   const Navigate=useNavigate();
   const [validated, setValidated] = useState(false);
-  const [val, setVal]=useState(true);
+  const [val, setVal] = useState(true);
+  const [touchedFields, setTouchedFields] = useState<{ [key: string]: boolean }>({});
+  const [addClass, setAddClass] = useState(false);
   useEffect(() => {
     setOpen(props.open)
   }, [props.open])
@@ -76,8 +78,8 @@ const FormComponent = (props: any) => {
   let ctryname = countries.map((item, key) => <option key={key} value={item.country}>{item.country}</option>)
   
   let countryFilter = countries.filter(function (value) {
-    console.log("data.country:",data.country);
-    return value.country === data.country;
+    console.log("data.country:",data?.country);
+    return value.country === data?.country;
   }).map(function (value) {
     console.log("value.cid",value.cid);
     return value.cid;
@@ -115,20 +117,15 @@ const FormComponent = (props: any) => {
   const handleClick = async (event:any) => {
     debugger
     
-    if (props.value.pid != "" && props.value.pid != undefined) {
+    if (props.value?.pid != "" && props.value?.pid != undefined) {
       let stringCheck = data.email;
       let myregex = new RegExp("[a-z0-9._%+\-]+@[a-z]+\.[a-z]{2,}$");
       let result = stringCheck.match(myregex);
       if (data.address != "" && data.fullname != "" && data.mobile.length == 10 && data.email != "" && result && data.gender != "" && data.dob != "") {
        console.log(Form.Check);
-        const form=event.currentTarget;
-        console.log(form.checkValidity());
-        
-        if(form.checkValidity()==false){
-
-        }
-        else
+        const form = event.currentTarget;
         editPatient();
+       
       }
     }
     else {
@@ -187,33 +184,28 @@ const FormComponent = (props: any) => {
   function onChangeEvent(e:any){
     console.log("e.traget.name:",e.target.name);
     console.log("e.traget.value:",e.target.value);
-    
     setData({...data,[e.target.name]:e.target.value});
-    return(<Form.Control.Feedback type="invalid">
-    Please enter {`${e.target.name}`}.
-  </Form.Control.Feedback>)
     setVal(true);
+    setTouchedFields({ ...touchedFields, [e.target.name]: true })
+    if (addClass) {
+      if (e.target.value == null || e.target.value=="" ) {
+        setAddClass(false);
+      }
+    }
+    else {
+      setAddClass(true);
+    }
   }
 
   const handleSubmit=(e:any)=>{
     debugger
     console.log("event type:",e);
-    
     const form = e.currentTarget;
-    console.log("form.checkvalidity()",form.checkValidity());
-    
-    if (form.checkValidity() === false) {
-      e.preventDefault();
-      e.stopPropagation();
-      handleOpen();
-    }
-    else{
-      setValidated(true);
-      handleClick(e);
-    }
-
-    
-    }
+    handleClick(e);
+   
+  }
+  
+  
   
 
 
@@ -262,12 +254,12 @@ let msg:any;
         <Fade in={open}>
           <Box sx={style}>
             <h6>Form</h6>
-            <Form className="was-validated" validated={validated} >
+            <Form className={addClass?"was-validated":''} >
               <Form.Group className="modal-body">
                 <Form.Group className="mb-3" controlId="image">
                   <Form.Label>Image</Form.Label>
                   <div className="imageBox" >
-                    <img src={data.image} style={{ height: '120px', width: '120px' }} />
+                    <img src={data?.image} style={{ height: '120px', width: '120px' }} />
                   </div>
                   <div >
                     <input type='file' id='image' accept=".png, .jpg, .jpeg"  onChange={convertToBase64}>
@@ -280,72 +272,90 @@ let msg:any;
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="fullname">
                   <Form.Label>Name</Form.Label>
-                  <Form.Control type="text" placeholder=" " name='fullname' pattern="^[a-zA-Z ]{3,}" value={data.fullname} onChange={msg=onChangeEvent} 
-                  required={true} isInvalid={false}/>
-                  {msg}
-                  {/* <Form.Control.Feedback type="invalid" hidden>
-              Please enter name.
-            </Form.Control.Feedback> */}
+                  <Form.Control type="text" placeholder=" " name='fullname' pattern="^[a-zA-Z ]{3,}" value={data?.fullname} onChange={onChangeEvent} 
+                    required={true} />
+                 
+                  <Form.Control.Feedback type="invalid">
+              Please enter valid name.
+            </Form.Control.Feedback>
                   {/* <div className="invalid-feedback">
                     Please enter Name.
                   </div> */}
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="gender">
                   <Form.Label>Gender: </Form.Label>
-                  <Form.Select aria-label="Default select example" name="gender" className="form-control" value={data.gender} onChange={onChangeEvent}
-                  required={true} isInvalid={false}><div className="invalid-feedback" >
+                  <Form.Select aria-label="Default select example" name="gender" className="form-control" value={data?.gender} onChange={onChangeEvent}
+                  required={true} ><div className="invalid-feedback" >
                       Please enter Gender.
                     </div>
                     <option value="">Gender</option>
                     <option >Male</option>
                     <option >Female</option>
                   </Form.Select>
-                  
+                  <Form.Control.Feedback type="invalid">
+                    Please select gender.
+                  </Form.Control.Feedback>
+
                 </Form.Group>
                 <Form.Group className="mb-3" >
                   <Form.Label>DOB</Form.Label>
-                  <Form.Control type="date" className="form-control" id="date-inp" placeholder="" max={maxDate} name='dob' value={data.dob} onChange={onChangeEvent} required={true} isInvalid={false} />
-                  <div className="invalid-feedback">Please enter Date of Birth.</div>
+                  <Form.Control type="date" className="form-control" id="date-inp" placeholder="" max={maxDate} name='dob' value={data?.dob} onChange={onChangeEvent} required={true} isInvalid={false} />
+                  {/* <div className="invalid-feedback">Please enter Date of Birth.</div> */}
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="refdoc">
                   <Form.Label>Ref. Doctor :</Form.Label>
-                  <Form.Select aria-label="Default select example" name="refdoc" className="form-control" value={data.refdoc} onChange={onChangeEvent} required={true} isInvalid={false}>
+                  <Form.Select aria-label="Default select example" name="refdoc" className="form-control" value={data?.refdoc} onChange={onChangeEvent} required={true} isInvalid={false}>
                     <option value="" >Select Doctor</option>
                     <option>Dr.1</option>
                     <option>Dr.2</option>
                   </Form.Select>
-                  
+                  <Form.Control.Feedback type="invalid">
+                    Please select Doctor.
+                  </Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="address">
                   <Form.Label>Address</Form.Label>
-                  <Form.Control type="text" placeholder="" name='address' value={data.address} onChange={onChangeEvent} required={true} isInvalid={false} />
+                  <Form.Control type="text" placeholder="" name='address' value={data?.address} onChange={onChangeEvent} required={true} isInvalid={false} />
+                  <Form.Control.Feedback type="invalid">
+                    Please enter address.
+                  </Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="country" >
                   <Form.Label >Country :</Form.Label>
 
-                  <Form.Select aria-label="Default select example" className="form-control" value={data.country} required={true} isInvalid={false}  onChange={handleCountry}>
+                  <Form.Select aria-label="Default select example" className="form-control" value={data?.country} required={true} isInvalid={false}  onChange={handleCountry}>
                     <option value="" >select country...</option>{ctryname}</Form.Select>
-
+                  <Form.Control.Feedback type="invalid">
+                    Please select country.
+                  </Form.Control.Feedback>
                   
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="state">
                   <Form.Label>State</Form.Label>
-                  <Form.Select className="form-control" value={data.state} onChange={handleStateChange} required={true}><option value="">select state...</option>
+                  <Form.Select className="form-control" value={data?.state} onChange={handleStateChange} required={true}><option value="">select state...</option>
                   {statefilter}</Form.Select>
-
+                  <Form.Control.Feedback type="invalid">
+                    Please select state.
+                  </Form.Control.Feedback>
                   
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="mobile">
                   <Form.Label>Mobile</Form.Label>
-                  <Form.Control type="text" placeholder="" minLength={10} pattern="[0-9]{10}" name="mobile" value={data.mobile} onChange={onChangeEvent} required={true} isInvalid={false} />
+                  <Form.Control type="text" placeholder="" minLength={10} pattern="[0-9]{10}" name="mobile" value={data?.mobile} onChange={onChangeEvent} required={true} isInvalid={false} />
+                  <Form.Control.Feedback type="invalid">
+                    Please enter valid email .
+                  </Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="email">
                   <Form.Label>Email</Form.Label>
-                  <Form.Control type="email" placeholder="" pattern="[a-z0-9._%+\-]+@[a-z]+\.[a-z]{2,}$" name="email" value={data.email} onChange={onChangeEvent} required={true} isInvalid={false} />
+                  <Form.Control type="email" placeholder="" pattern="[a-z0-9._%+\-]+@[a-z]+\.[a-z]{2,}$" name="email" value={data?.email} onChange={onChangeEvent} required={true} isInvalid={false} />
+                  <Form.Control.Feedback type="invalid">
+                    Please enter valid email .
+                  </Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="note">
                   <Form.Label>Note</Form.Label>
-                  <Form.Control type="text" placeholder=" " value={data.note} name="note" onChange={onChangeEvent} />
+                  <Form.Control type="text" placeholder=" " value={data?.note} name="note" onChange={onChangeEvent} />
                 </Form.Group>
               </Form.Group>
               <Form.Group controlId="button">
