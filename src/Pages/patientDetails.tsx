@@ -55,7 +55,6 @@ export function PatientDetails() {
 
     async function deletePatient(pid: string) {
      await deletePatientData(pid);
-
      await fetchingdata();
   }
 
@@ -140,8 +139,9 @@ export function PatientDetails() {
   }
   const propsToCheck = ['fullname', 'refdoc', 'email'];
   function filterData(text: string) {
+    
     if (text != "") {
-      const result = filterByValue(input, text)
+      const result = filterByValue(data, text)
       setInput(result);
     }
     else {

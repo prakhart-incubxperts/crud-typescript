@@ -16,7 +16,7 @@ export async function fetchData() {
     return response.data;
     }
   catch (error) {
-    console.log("error:", error);
+    console.log("error in get:", error);
   }
 }
 
@@ -27,10 +27,20 @@ export async function save(data: any){
     
 
 export async function editPatientData(data:Patients){
-return await axios.put(`${url}/patient/:id`,(data));
+  try {
+    return await axios.put(`${url}/patient/:id`,(data));
+  } catch (error) {
+    console.log("error in put:", error);
+  }
+
 }
 
 export async function deletePatientData(pid: string) {
-  return await axios.delete(`${url}/patient/delete/${pid}`);
+  try {
+    return await axios.delete(`${url}/patient/delete/${pid}`);
+  } catch (error) {
+    console.log("error in put:", error);
+  }
+  
 }
 
